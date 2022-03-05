@@ -1,3 +1,3 @@
 export class EnrollAdminDto {
-  adminOrg: string;
+  organization: string;
 }
