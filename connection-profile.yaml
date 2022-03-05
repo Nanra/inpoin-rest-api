@@ -1,0 +1,61 @@
+name: "Network"
+version: "1.1"
+
+channels:
+  mychannel:
+    orderers:
+      - orderer.example.com
+    peers:
+      - peer0.org1.example.com
+      - peer0.org2.example.com
+      - peer0.org3.example.com
+
+organizations:
+  Org1:
+    mspid: Org1MSP
+    peers:
+      - peer0.org1.example.com
+
+  Org2:
+    mspid: Org2MSP
+    peers:
+      - peer0.org2.example.com
+
+  Org3:
+    mspid: Org3MSP
+    peers:
+      - peer0.org3.example.com
+
+orderers:
+  orderer.example.com:
+    url: grpcs://157.230.39.222:7050
+    grpcOptions:
+      ssl-target-name-override: orderer.example.com
+      grpc-max-send-message-length: 4194304
+    tlsCACerts:
+      path: ./organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
+
+peers:
+  peer0.org1.example.com:
+    url: grpcs://157.230.39.222:7051
+    grpcOptions:
+      ssl-target-name-override: peer0.org1.example.com
+      grpc.keepalive_time_ms: 600000
+    tlsCACerts:
+      path: ./organizations/peerOrganizations/org1.example.com/tlsca/tlsca.org1.example.com-cert.pem
+
+  peer0.org2.example.com:
+    url: grpcs://157.230.39.222:9051
+    grpcOptions:
+      ssl-target-name-override: peer0.org2.example.com
+      grpc.keepalive_time_ms: 600000
+    tlsCACerts:
+      path: ./organizations/peerOrganizations/org2.example.com/tlsca/tlsca.org2.example.com-cert.pem
+
+  peer0.org3.example.com:
+    url: grpcs://157.230.39.222:11051
+    grpcOptions:
+      ssl-target-name-override: peer0.org3.example.com
+      grpc.keepalive_time_ms: 600000
+    tlsCACerts:
+      path: ./organizations/peerOrganizations/org3.example.com/tlsca/tlsca.org3.example.com-cert.pem
