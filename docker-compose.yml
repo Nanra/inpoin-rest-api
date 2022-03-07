@@ -13,8 +13,8 @@ services:
       - inpoin
     restart: unless-stopped
     volumes:
-      - wallet:/usr/src/app/wallet
-      - organizations:/usr/src/app/organizations
+      - ./wallet:/usr/src/app/wallet
+      - ./organizations:/usr/src/app/organizations
 
 networks:
   inpoin:
