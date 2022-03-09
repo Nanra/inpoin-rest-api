@@ -1,8 +1,7 @@
 export class Coins {
     constructor (
-        public fromCoin: string, 
-        public fromCoinBalance: number,
-        public toCoin: string,
-        public coinExchange: number, 
+        public fromCoinId: string, 
+        public fromCoinAmmount: number,
+        public toCoinId: string,
         ) {}
 }

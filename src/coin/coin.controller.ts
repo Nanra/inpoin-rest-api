@@ -16,11 +16,11 @@ export class CoinController {
     }
     @Post('coin-exchange')
     addTransaction(
-        @Body('from coin') fromCoinName: string,
-        @Body('coin balance') fromCoinBalance: number,
-        @Body('to coin') toCoinName: string,
+        @Body('from coin Id') fromCoinId: string,
+        @Body('from coin ammount') fromCoinAmmount: number,
+        @Body('to coin Id') toCoinId: string, 
     )  {
-       return this.coinService.getExchangeTransaction(fromCoinName, fromCoinBalance, toCoinName,)
+       return this.coinService.exchange(fromCoinId, fromCoinAmmount, toCoinId)
     }
 
 }
