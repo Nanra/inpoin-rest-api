@@ -4,9 +4,12 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { Wallets } from 'fabric-network';
 import * as FabricCAServices from 'fabric-ca-client';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class CaService {
+  constructor(private configService: ConfigService) {}
+
   async registerAndEnrollUser(payload: RegisterEnrollDto): Promise<any> {
     const { username, userOrg } = payload;
     const ccp = await this.getCCP(userOrg);
@@ -149,18 +152,18 @@ export class CaService {
     let ccpPath;
     if (org == 'Org1') {
       ccpPath = path.resolve(
-        __dirname,
-        '../../organizations/peerOrganizations/org1.example.com/connection-org1.json',
+        this.configService.get<string>('ORGANIZATIONS_BASE_PATH'),
+        'peerOrganizations/org1.example.com/connection-org1.json',
       );
     } else if (org == 'Org2') {
       ccpPath = path.resolve(
-        __dirname,
-        '../../organizations/peerOrganizations/org2.example.com/connection-org2.json',
+        this.configService.get<string>('ORGANIZATIONS_BASE_PATH'),
+        'peerOrganizations/org2.example.com/connection-org2.json',
       );
     } else if (org == 'Org3') {
       ccpPath = path.resolve(
-        __dirname,
-        '../../organizations/peerOrganizations/org3.example.com/connection-org3.json',
+        this.configService.get<string>('ORGANIZATIONS_BASE_PATH'),
+        'peerOrganizations/org3.example.com/connection-org3.json',
       );
     } else {
       return null;
@@ -188,11 +191,20 @@ export class CaService {
   async getWalletPath(org: string) {
     let walletPath;
     if (org == 'Org1') {
-      walletPath = path.join(process.cwd(), 'wallet', 'org1-wallet');
+      walletPath = path.join(
+        this.configService.get<string>('WALLET_BASE_PATH'),
+        'org1-wallet',
+      );
     } else if (org == 'Org2') {
-      walletPath = path.join(process.cwd(), 'wallet', 'org2-wallet');
+      walletPath = path.join(
+        this.configService.get<string>('WALLET_BASE_PATH'),
+        'org2-wallet',
+      );
     } else if (org == 'Org3') {
-      walletPath = path.join(process.cwd(), 'wallet', 'org3-wallet');
+      walletPath = path.join(
+        this.configService.get<string>('WALLET_BASE_PATH'),
+        'org3-wallet',
+      );
     } else {
       return null;
     }
