@@ -5,6 +5,7 @@ import { AuthModule } from './auth/auth.module';
 import { WalletModule } from './wallet/wallet.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './users/user.entity';
+import { CoinModule } from './coin/coin.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { User } from './users/user.entity';
     }),
     AuthModule,
     WalletModule,
+    CoinModule,
   ],
   controllers: [AppController],
   providers: [AppService],
