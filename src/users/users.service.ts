@@ -10,7 +10,7 @@ export class UsersService {
     @InjectRepository(User)
     private usersRepository: Repository<User>,
   ) {}
-
+//creating a new user, storing user data, finding exixting user
   async create(payload: CreateUserDto): Promise<User> {
     const { username, password, organization } = payload;
     const user = await this.findOne(username, organization);
@@ -27,7 +27,7 @@ export class UsersService {
     });
     return created;
   }
-
+//find user by username
   async findOne(username: string, organization: string): Promise<any> {
     return this.usersRepository.findOne({ username, organization });
   }

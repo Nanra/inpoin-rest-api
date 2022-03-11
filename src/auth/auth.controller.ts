@@ -12,12 +12,10 @@ export class AuthController {
   register(@Body() payload: RegisterDto): Promise<string> {
     return this.authService.register(payload);
   }
-
   @Post('login')
   login(@Body() payload: LoginDto): Promise<string> {
     return this.authService.login(payload);
   }
-
   @Post('enroll-admin')
   enrollAdmin(@Body() payload: EnrollAdminDto): Promise<any> {
     return this.authService.enrollAdmin(payload);
