@@ -1,15 +1,14 @@
 import { Body, Injectable, NotFoundException, Query } from "@nestjs/common";
-import { Coins } from "./coin.model";
+import { CoinExchange } from "./coin.model";
 import { ExchangeRateQueryDto } from './dto/exchange-rate-query.dto';
 
 
 @Injectable ()
 export class CoinService {
-    coinTransaction : Coins
-    exchangeRateQuery: ExchangeRateQueryDto
-    coins = [{coinId : 1, coinName : 'InPoin', coinBalance : 10, coinPrice : 1}, 
-            {coinId : 2, coinName : 'Fiesta', coinBalance : 0, coinPrice : 10},
-            {coinId : 3, coinName : 'Miles', coinBalance : 0, coinPrice : 200}
+    coinExchange : CoinExchange [] = []
+    coins = [{coinId : 1, coinName : 'InPoin', coinAmmount : 100}, 
+            {coinId : 2, coinName : 'Fiesta', coinAmmount : 100},
+            {coinId : 3, coinName : 'Miles', coinAmmount : 100}
             ]
 
     exchangeRates = {
@@ -50,8 +49,13 @@ export class CoinService {
 
         return finalRate
     }
-    exchange (fromCoinId : string,  fromCoinAmmount : number, toCoinId : string){
-        const newCoinExchangeTransaction = new Coins (fromCoinId, fromCoinAmmount, toCoinId)
-        return [newCoinExchangeTransaction]
+    exchange (fromCoinId : string,  toCoinId : string, fromCoinAmmount : number){
+        const newCoinExchange = new CoinExchange (fromCoinId, toCoinId, fromCoinAmmount)
+        this.coinExchange.push(newCoinExchange)
+        return this.coinExchange
+    }
+    getExchange (exchangeRateQuery: ExchangeRateQueryDto){
+        const { fromCoinId, toCoinId, fromCoinAmmount } = exchangeRateQuery
+        return this.coinExchange
     }
 }

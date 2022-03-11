@@ -15,7 +15,7 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
   ) {}
-
+//authentication and validation
   async register(payload: RegisterDto): Promise<any> {
     const { username, organization, password } = payload;
 
@@ -50,7 +50,7 @@ export class AuthService {
       throw error;
     }
   }
-
+//validate that the user exist
   async validateUser(
     username: string,
     organization: string,

@@ -6,7 +6,7 @@ import { ExchangeRateQueryDto } from './dto/exchange-rate-query.dto';
 export class CoinController {
     constructor (private readonly coinService : CoinService){}
 
-    @Get () 
+    @Get ('user') 
     getCoinList () {
         return this.coinService.getCoins();
     }
@@ -14,13 +14,17 @@ export class CoinController {
     getExchangeRate (@Query() query: ExchangeRateQueryDto){
         return this.coinService.getRate(query);
     }
-    @Post('coin-exchange')
+    @Post('exchange')
     addTransaction(
-        @Body('from coin Id') fromCoinId: string,
-        @Body('from coin ammount') fromCoinAmmount: number,
-        @Body('to coin Id') toCoinId: string, 
+        @Body('from token Id') fromTokenId: string,
+        @Body('to token Id') toTokenId: string,
+        @Body('from token ammount') fromTokenAmmount: number, 
     )  {
-       return this.coinService.exchange(fromCoinId, fromCoinAmmount, toCoinId)
+       return this.coinService.exchange(fromTokenId, toTokenId, fromTokenAmmount)
+    }
+    @Get ('exchange/summary')
+    getExchangeSummary (@Query() query: ExchangeRateQueryDto){
+        return this.coinService.getExchange (query);
     }
 
 }
