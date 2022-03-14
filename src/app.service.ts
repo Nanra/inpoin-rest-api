@@ -59,7 +59,7 @@ async function createGateway() {
 export class AppService {
   async getHello(): Promise<string> {
     const gateway = await createGateway();
-    console.log(gateway);
+    // console.log(gateway);
 
     return 'Hello World!';
   }

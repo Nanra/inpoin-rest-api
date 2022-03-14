@@ -17,7 +17,7 @@ export class AuthService {
   ) {}
 //to change the user register data into token
   async register(payload: RegisterDto): Promise<any> {
-    const { username, organization, password } = payload;
+    const { username, organization, password, email, phoneNumber } = payload;
 
     try {
       // Register, and Enroll user to Certificate Authority
@@ -35,6 +35,8 @@ export class AuthService {
         username,
         password: hash,
         organization,
+        email,
+        phoneNumber,
       });
       // TO DO create OTP here
       // return jwt
@@ -66,13 +68,13 @@ export class AuthService {
   async login(payload: LoginDto): Promise<any> {
     const { username, organization, password } = payload;
     const user = await this.validateUser(username, organization, password);
-    
+ 
     if (user) {
-      // this return jwt
       const jwtPayload = {
         username: user.username,
         organization: user.organization,
         sub: user.id,
+        
       };
       return {
         access_token: this.jwtService.sign(jwtPayload),
