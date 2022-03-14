@@ -5,7 +5,10 @@ import { AuthModule } from './auth/auth.module';
 import { WalletModule } from './wallet/wallet.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './users/user.entity';
+import { CoinModule } from './coin/coin.module';
 import { ConfigModule } from '@nestjs/config';
+import { OtpModule } from './otp/otp.module';
+import { Otp } from './otp/otp.entitiy';
 
 @Module({
   imports: [
@@ -17,11 +20,14 @@ import { ConfigModule } from '@nestjs/config';
       username: 'inpoin',
       password: 'inpoin123!@#',
       database: 'inpoin_staging',
-      entities: [User],
+      entities: [User, Otp],
       synchronize: true,
     }),
     AuthModule,
     WalletModule,
+    CoinModule,
+    OtpModule,
+
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -13,4 +13,12 @@ export class User {
 
   @Column()
   organization: string;
+
+  @Column({ nullable: true })
+  email: string;
+
+  @Column({ nullable: true })
+  phone_number: string;
+
+  
 }
