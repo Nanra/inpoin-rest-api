@@ -6,9 +6,9 @@ import { ExchangeRateQueryDto } from './dto/exchange-rate-query.dto';
 @Injectable ()
 export class TokenService {
     tokenExchange : TokenExchange [] = []
-    tokens = [{tokenId : 1, tokenName : 'InPoin', tokenAmmount : 100}, 
-            {tokenId : 2, tokenName : 'FiestaPoin', tokenAmmount : 100},
-            {tokenId : 3, tokenName : 'Garuda Miles', tokenAmmount : 100}
+    tokens = [{tokenId : 1, tokenName : 'InPoin', tokenAmount : 100}, 
+            {tokenId : 2, tokenName : 'FiestaPoin', tokenAmount : 100},
+            {tokenId : 3, tokenName : 'Garuda Miles', tokenAmount : 100}
             ]
 
     exchangeRates = {
@@ -49,18 +49,18 @@ export class TokenService {
 
         return rate
     }
-    exchange (fromTokenId : string,  toTokenId : string, fromTokenAmmount : number){
-        const newTokenExchange = new TokenExchange (fromTokenId, toTokenId, fromTokenAmmount)
+    exchange (fromTokenId : string,  toTokenId : string, fromTokenAmount : number){
+        const newTokenExchange = new TokenExchange (fromTokenId, toTokenId, fromTokenAmount)
         this.tokenExchange.push(newTokenExchange)
         return this.tokenExchange
     }
     getExchange (exchangeRateQuery: ExchangeRateQueryDto){
-        const { toTokenId, fromTokenAmmount } = exchangeRateQuery
+        const { toTokenId, fromTokenAmount } = exchangeRateQuery
         const tokenRate = this.getRate(exchangeRateQuery)
-        const toTokenExchangeAmmount = fromTokenAmmount * tokenRate
+        const toTokenExchangeAmount = fromTokenAmount * tokenRate
         const adminFee = 1000 / this.exchangeRates[toTokenId].rate
-        const totalExchange = toTokenExchangeAmmount - adminFee
-        return {fromTokenAmmount, toTokenExchangeAmmount, adminFee, totalExchange}
+        const totalExchange = toTokenExchangeAmount - adminFee
+        return {fromTokenAmount, toTokenExchangeAmount, adminFee, totalExchange}
     }
     
 
