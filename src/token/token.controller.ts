@@ -18,9 +18,9 @@ export class TokenController {
     addTransaction(
         @Body('fromTokenId') fromTokenId: string,
         @Body('toTokenId') toTokenId: string,
-        @Body('fromTokenAmmount') fromTokenAmmount: number, 
+        @Body('fromTokenAmount') fromTokenAmount: number, 
     )  {
-       return this.tokenService.exchange(fromTokenId, toTokenId, fromTokenAmmount)
+       return this.tokenService.exchange(fromTokenId, toTokenId, fromTokenAmount)
     }
     @Get ('exchange/summary')
     getExchangeSummary (@Query() query: ExchangeRateQueryDto){
