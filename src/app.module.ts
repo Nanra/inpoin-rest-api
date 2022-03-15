@@ -5,7 +5,7 @@ import { AuthModule } from './auth/auth.module';
 import { WalletModule } from './wallet/wallet.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './users/user.entity';
-import { CoinModule } from './coin/coin.module';
+import { TokenModule } from './token/token.module';
 import { ConfigModule } from '@nestjs/config';
 import { OtpModule } from './otp/otp.module';
 import { Otp } from './otp/otp.entitiy';
@@ -25,7 +25,7 @@ import { Otp } from './otp/otp.entitiy';
     }),
     AuthModule,
     WalletModule,
-    CoinModule,
+    TokenModule,
     OtpModule,
 
   ],
