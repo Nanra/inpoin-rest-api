@@ -3,5 +3,5 @@ export class RegisterDto {
   organization: string;
   password: string;
   email: string;
-  phoneNumber: number;
+  phone_number: string;
 }

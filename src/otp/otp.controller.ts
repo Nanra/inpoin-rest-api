@@ -1,7 +1,6 @@
-import { Req, Body, Request, Post, UseGuards, Controller, Get, HttpException } from "@nestjs/common"
+import { Req, Body, Post, UseGuards, Controller, Get, } from "@nestjs/common"
 import { OtpService } from "./otp.service";
 import { JwtAuthGuard } from "src/auth/jwt-auth.guard";
-import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
 import { ValidateOtpDto } from "./dto/otp.dto";
 

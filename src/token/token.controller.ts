@@ -1,18 +1,18 @@
 import { Controller, Get,Post, Body, Query } from "@nestjs/common";
-import { CoinService } from "./coin.service";
+import { TokenService } from "./token.service";
 import { ExchangeRateQueryDto } from './dto/exchange-rate-query.dto';
 
-@Controller ('coins')
-export class CoinController {
-    constructor (private readonly coinService : CoinService){}
+@Controller ('tokens')
+export class TokenController {
+    constructor (private readonly tokenService : TokenService){}
 
     @Get ('user') 
-    getCoinList () {
-        return this.coinService.getCoins();
+    getTokenList () {
+        return this.tokenService.getTokens();
     }
     @Get ('exchange-rate')
     getExchangeRate (@Query() query: ExchangeRateQueryDto){
-        return this.coinService.getRate(query);
+        return this.tokenService.getRate(query);
     }
     @Post('exchange')
     addTransaction(
@@ -20,11 +20,11 @@ export class CoinController {
         @Body('to token Id') toTokenId: string,
         @Body('from token ammount') fromTokenAmmount: number, 
     )  {
-       return this.coinService.exchange(fromTokenId, toTokenId, fromTokenAmmount)
+       return this.tokenService.exchange(fromTokenId, toTokenId, fromTokenAmmount)
     }
     @Get ('exchange/summary')
     getExchangeSummary (@Query() query: ExchangeRateQueryDto){
-        return this.coinService.getExchange (query);
+        return this.tokenService.getExchange (query);
     }
 
 }

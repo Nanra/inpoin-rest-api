@@ -3,5 +3,5 @@ export class CreateUserDto {
   password: string;
   organization: string;
   email: string;
-  phoneNumber: number;
+  phone_number: string;
 }
