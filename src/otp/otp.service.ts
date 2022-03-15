@@ -19,7 +19,6 @@ export class OtpService {
     
     async generateOtp (userId: number){
         const user = await this.userService.findById(userId);
-        console.log(user.phone_number)
         const otpCode = otpGenerator.generate(6, { 
             digits: true, 
             lowerCaseAlphabets: false, 

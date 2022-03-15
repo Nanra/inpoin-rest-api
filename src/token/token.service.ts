@@ -50,19 +50,16 @@ export class TokenService {
         return rate
     }
     exchange (fromTokenId : string,  toTokenId : string, fromTokenAmmount : number){
-        const transId = Math.random().toString();
-        const newTokenExchange = new TokenExchange (transId, fromTokenId, toTokenId, fromTokenAmmount)
+        const newTokenExchange = new TokenExchange (fromTokenId, toTokenId, fromTokenAmmount)
         this.tokenExchange.push(newTokenExchange)
         return this.tokenExchange
     }
     getExchange (exchangeRateQuery: ExchangeRateQueryDto){
         const { toTokenId, fromTokenAmmount } = exchangeRateQuery
         const tokenRate = this.getRate(exchangeRateQuery)
-        console.log('exchange rate', tokenRate)
         const toTokenExchangeAmmount = fromTokenAmmount * tokenRate
         const adminFee = 1000 / this.exchangeRates[toTokenId].rate
         const totalExchange = toTokenExchangeAmmount - adminFee
-
         return {fromTokenAmmount, toTokenExchangeAmmount, adminFee, totalExchange}
     }
     

@@ -16,9 +16,9 @@ export class TokenController {
     }
     @Post('exchange')
     addTransaction(
-        @Body('from token Id') fromTokenId: string,
-        @Body('to token Id') toTokenId: string,
-        @Body('from token ammount') fromTokenAmmount: number, 
+        @Body('fromTokenId') fromTokenId: string,
+        @Body('toTokenId') toTokenId: string,
+        @Body('fromTokenAmmount') fromTokenAmmount: number, 
     )  {
        return this.tokenService.exchange(fromTokenId, toTokenId, fromTokenAmmount)
     }
