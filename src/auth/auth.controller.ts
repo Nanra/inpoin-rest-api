@@ -14,6 +14,7 @@ export class AuthController {
   }
   @Post('login')
   login(@Body() payload: LoginDto): Promise<string> {
+    console.log(payload)
     return this.authService.login(payload);
   }
   @Post('enroll-admin')
