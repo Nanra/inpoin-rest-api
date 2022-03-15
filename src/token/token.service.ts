@@ -59,11 +59,11 @@ export class TokenService {
         const { toTokenId, fromTokenAmmount } = exchangeRateQuery
         const tokenRate = this.getRate(exchangeRateQuery)
         console.log('exchange rate', tokenRate)
-        const exchange = fromTokenAmmount * tokenRate
+        const toTokenExchangeAmmount = fromTokenAmmount * tokenRate
         const adminFee = 1000 / this.exchangeRates[toTokenId].rate
-        const finalTransaction = exchange - adminFee
+        const totalExchange = toTokenExchangeAmmount - adminFee
 
-        return {exchange, adminFee, finalTransaction}
+        return {fromTokenAmmount, toTokenExchangeAmmount, adminFee, totalExchange}
     }
     
 
