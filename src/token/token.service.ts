@@ -49,11 +49,14 @@ export class TokenService {
 
         return rate
     }
+
     exchange (fromTokenId : string,  toTokenId : string, fromTokenAmount : number){
-        const newTokenExchange = new TokenExchange (fromTokenId, toTokenId, fromTokenAmount)
+        const exchangeId = new Date().toLocaleString();
+        const newTokenExchange = new TokenExchange (exchangeId, fromTokenId, toTokenId, fromTokenAmount)
         this.tokenExchange.push(newTokenExchange)
         return this.tokenExchange
     }
+
     getExchange (exchangeRateQuery: ExchangeRateQueryDto){
         const { toTokenId, fromTokenAmount } = exchangeRateQuery
         const tokenRate = this.getRate(exchangeRateQuery)
