@@ -34,7 +34,10 @@ export class OtpService {
             verified: false 
         };
         const created = await this.otpRepository.save(otpLog)
-        return created;
+        return {
+            ...created,
+            phone_number: user.phone_number,
+        };
     }
 
     async validateOtp(user_id: number, otpCode: string) {
