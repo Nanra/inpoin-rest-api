@@ -6,22 +6,22 @@ import { ExchangeRateQueryDto } from './dto/exchange-rate-query.dto';
 @Injectable ()
 export class TokenService {
     tokenExchange : TokenExchange [] = []
-    tokens = [{tokenId : 1, tokenName : 'InPoin', tokenAmount : 100}, 
-            {tokenId : 2, tokenName : 'FiestaPoin', tokenAmount : 100},
-            {tokenId : 3, tokenName : 'Garuda Miles', tokenAmount : 100}
+    tokens = [{tokenId : 1, tokenName : 'BUMNPoin', tokenAmount : 100}, 
+            {tokenId : 2, tokenName : 'LivinPoin', tokenAmount : 100},
+            {tokenId : 3, tokenName : 'MilesPoin', tokenAmount : 100}
             ]
 
     exchangeRates = {
         '1': {
-            tokenName: 'Inpoin',
+            tokenName: 'BUMNPoin',
             rate: 1,
         },
         '2': {
-            tokenName: 'Fiesta',
+            tokenName: 'LivinPoin',
             rate: 10,
         },
         '3': {
-            tokenName: 'Miles',
+            tokenName: 'MilesPoin',
             rate: 200,
         }
     }     

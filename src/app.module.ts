@@ -9,6 +9,7 @@ import { TokenModule } from './token/token.module';
 import { ConfigModule } from '@nestjs/config';
 import { OtpModule } from './otp/otp.module';
 import { Otp } from './otp/otp.entitiy';
+import { EmailModule } from './email/email.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { Otp } from './otp/otp.entitiy';
     WalletModule,
     TokenModule,
     OtpModule,
+    EmailModule,
 
   ],
   controllers: [AppController],

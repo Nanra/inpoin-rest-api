@@ -16,6 +16,7 @@ export class OtpController {
     @UseGuards(JwtAuthGuard)
     @Get("generate")
     async getOtp(@Req() req) {
+        console.log(req)
         return this.otpService.generateOtp(req.user.userId)   
     }
     

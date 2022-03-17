@@ -2,9 +2,12 @@ import { HttpException, Injectable, HttpStatus } from "@nestjs/common";
 import { InjectRepository } from '@nestjs/typeorm';
 import { UsersService } from "src/users/users.service";
 import * as otpGenerator from "otp-generator";
+import * as SibApiV3Sdk from "sib-api-v3-sdk";
 import { Repository } from "typeorm";
 import { Otp } from "./otp.entitiy";
 import { response } from "express";
+import { EmailService } from "src/email/email.service";
+
 
 
 @Injectable ()
@@ -12,6 +15,7 @@ import { response } from "express";
 export class OtpService {
     constructor(
         private userService: UsersService,
+        private emailService: EmailService,
         @InjectRepository(Otp)
         private otpRepository: Repository<Otp>,
         ) {}
@@ -19,6 +23,7 @@ export class OtpService {
     
     async generateOtp (userId: number){
         const user = await this.userService.findById(userId);
+        console.log(user)
         const otpCode = otpGenerator.generate(6, { 
             digits: true, 
             lowerCaseAlphabets: false, 
@@ -34,10 +39,28 @@ export class OtpService {
             verified: false 
         };
         const created = await this.otpRepository.save(otpLog)
-        return {
-            ...created,
-            phone_number: user.phone_number,
-        };
+        
+        this.emailService.sendEmail()
+
+        let apiInstance = await new SibApiV3Sdk.TransactionalEmailsApi();
+
+        let sendSmtpEmail = await new SibApiV3Sdk.SendSmtpEmail();
+    
+            sendSmtpEmail.subject = "OTP Verification";
+            sendSmtpEmail.htmlContent = otpCode;
+            sendSmtpEmail.sender = {"name":"MyInpoin","email":"emilliokanz@gmail.com"};
+            sendSmtpEmail.to = [{"email":user.email,"name":user.username}];
+            sendSmtpEmail.headers = {"Some-Custom-Name":"unique-id-1234"};
+            sendSmtpEmail.params = {"parameter":"My param value","subject":"New Subject"};
+    
+        await apiInstance.sendTransacEmail(sendSmtpEmail).then(function(data) {
+            console.log('API called successfully. Returned data: ' + JSON.stringify(data));
+        }, function(error) {
+            console.error(error);
+        });
+
+        return {apiInstance, ...created, phone_number: user.phone_number }
+
     }
 
     async validateOtp(user_id: number, otpCode: string) {
