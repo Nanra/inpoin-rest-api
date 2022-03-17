@@ -8,6 +8,6 @@ export class EmailController{
     {}
     @Get('email')
     sendEmail(){
-        return this.emailService.sendEmail()
+        return this.emailService.apiKey()
     }
 }

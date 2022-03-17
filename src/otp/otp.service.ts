@@ -40,7 +40,7 @@ export class OtpService {
         };
         const created = await this.otpRepository.save(otpLog)
         
-        this.emailService.sendEmail()
+        this.emailService.apiKey()
 
         let apiInstance = await new SibApiV3Sdk.TransactionalEmailsApi();
 
@@ -53,7 +53,7 @@ export class OtpService {
             sendSmtpEmail.headers = {"Some-Custom-Name":"unique-id-1234"};
             sendSmtpEmail.params = {"parameter":"My param value","subject":"New Subject"};
     
-        await apiInstance.sendTransacEmail(sendSmtpEmail).then(function(data) {
+        apiInstance.sendTransacEmail(sendSmtpEmail).then(function(data) {
             console.log('API called successfully. Returned data: ' + JSON.stringify(data));
         }, function(error) {
             console.error(error);
