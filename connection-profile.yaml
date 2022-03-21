@@ -28,7 +28,7 @@ organizations:
 
 orderers:
   orderer.example.com:
-    url: grpcs://157.230.39.222:7050
+    url: grpcs://localhost:7050
     grpcOptions:
       ssl-target-name-override: orderer.example.com
       grpc-max-send-message-length: 4194304
@@ -37,7 +37,7 @@ orderers:
 
 peers:
   peer0.org1.example.com:
-    url: grpcs://157.230.39.222:7051
+    url: grpcs://localhost:7051
     grpcOptions:
       ssl-target-name-override: peer0.org1.example.com
       grpc.keepalive_time_ms: 600000
@@ -45,7 +45,7 @@ peers:
       path: ./organizations/peerOrganizations/org1.example.com/tlsca/tlsca.org1.example.com-cert.pem
 
   peer0.org2.example.com:
-    url: grpcs://157.230.39.222:9051
+    url: grpcs://localhost:9051
     grpcOptions:
       ssl-target-name-override: peer0.org2.example.com
       grpc.keepalive_time_ms: 600000
@@ -53,7 +53,7 @@ peers:
       path: ./organizations/peerOrganizations/org2.example.com/tlsca/tlsca.org2.example.com-cert.pem
 
   peer0.org3.example.com:
-    url: grpcs://157.230.39.222:11051
+    url: grpcs://localhost:11051
     grpcOptions:
       ssl-target-name-override: peer0.org3.example.com
       grpc.keepalive_time_ms: 600000
