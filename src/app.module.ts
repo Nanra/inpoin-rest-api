@@ -10,6 +10,7 @@ import { ConfigModule } from '@nestjs/config';
 import { OtpModule } from './otp/otp.module';
 import { Otp } from './otp/otp.entitiy';
 import { EmailModule } from './email/email.module';
+import { FabricGatewayModule } from './fabric-gateway/fabric-gateway.module';
 
 @Module({
   imports: [
@@ -24,12 +25,12 @@ import { EmailModule } from './email/email.module';
       entities: [User, Otp],
       synchronize: true,
     }),
+    FabricGatewayModule,
     AuthModule,
     WalletModule,
     TokenModule,
     OtpModule,
     EmailModule,
-
   ],
   controllers: [AppController],
   providers: [AppService],

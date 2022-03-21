@@ -15,7 +15,7 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
   ) {}
-//to change the user register data into token
+  //to change the user register data into token
   async register(payload: RegisterDto): Promise<any> {
     const { username, organization, password, email, phone_number } = payload;
 
@@ -38,7 +38,6 @@ export class AuthService {
         email,
         phone_number,
       });
-      // TO DO create OTP here
       // return jwt
       const jwtPayload = {
         username: user.username,
@@ -52,7 +51,8 @@ export class AuthService {
       throw error;
     }
   }
-//validate that the user exist
+
+  //validate that the user exist
   async validateUser(
     username: string,
     organization: string,
@@ -68,30 +68,18 @@ export class AuthService {
   async login(payload: LoginDto): Promise<any> {
     const { username, organization, password } = payload;
     const user = await this.validateUser(username, organization, password);
- 
+
     if (user) {
       const jwtPayload = {
         username: user.username,
         organization: user.organization,
         sub: user.id,
-        
       };
       return {
         access_token: this.jwtService.sign(jwtPayload),
       };
     }
     throw new HttpException('invalid login', 401);
-    // const walletPath = await this.getWalletPath(userOrg);
-    // const wallet = await Wallets.newFileSystemWallet(walletPath);
-
-    // const userIdentity = await wallet.get(username);
-    // if (userIdentity) {
-    //   const response = {
-    //     success: true,
-    //     identity: userIdentity,
-    //   };
-    //   return response;
-    // }
   }
 
   async enrollAdmin(payload: EnrollAdminDto): Promise<any> {

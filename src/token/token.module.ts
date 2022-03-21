@@ -1,12 +1,14 @@
-import { Module } from "@nestjs/common"
+import { Module } from '@nestjs/common';
+import { FabricGatewayModule } from 'src/fabric-gateway/fabric-gateway.module';
+import { UsersModule } from 'src/users/users.module';
 
-
-import { TokenController } from "./token.controller";
-import { TokenService } from "./token.service";
+import { TokenController } from './token.controller';
+import { TokenService } from './token.service';
 
 @Module({
-    controllers: [TokenController],
-    providers: [TokenService],
-    exports: [TokenService]
+  imports: [FabricGatewayModule, UsersModule],
+  controllers: [TokenController],
+  providers: [TokenService],
+  exports: [TokenService],
 })
 export class TokenModule {}
