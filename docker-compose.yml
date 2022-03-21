@@ -15,6 +15,7 @@ services:
     volumes:
       - ./wallet:/usr/src/app/wallet
       - /home/inpoin/fabric-inpoin/test-network/organizations:/usr/src/app/organizations
+      - ./connection-profile:/usr/src/app/connection-profile
 
 networks:
   inpoin:
