@@ -14,7 +14,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./wallet:/usr/src/app/wallet
-      - ./organizations:/usr/src/app/organizations
+      - /home/inpoin/fabric-inpoin/test-network/organizations:/usr/src/app/organizations
 
 networks:
   inpoin:
