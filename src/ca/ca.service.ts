@@ -60,7 +60,8 @@ export class CaService {
         adminUser,
       );
     } catch (error) {
-      return error.message;
+      throw new Error(error);
+      //return error.message;
     }
 
     const enrollment = await ca.enroll({

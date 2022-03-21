@@ -117,7 +117,7 @@ csr:
       O: Hyperledger
       OU: Fabric
   hosts:
-    - inpoin-test-network
+    - Kevins-MacBook-Air.local
 
 #############################################################################
 #  Registration section used to register a new identity with fabric-ca server

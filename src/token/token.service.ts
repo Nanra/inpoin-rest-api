@@ -81,8 +81,30 @@ export class TokenService {
     return { fromTokenAmount, toTokenExchangeAmount, adminFee, totalExchange };
   }
 
-  getTokenBalance(tokenId: number) {
+  async getUserTokenBalance(
+    username: string,
+    organization: string,
+    tokenId: number,
+  ) {
     // Get token balance from blockchain
+    const gateway = await this.fabricGatewayService.initGateway(
+      username,
+      organization,
+    );
+    const network = await gateway.getNetwork(CHANNEL_NAME);
+    const contract = network.getContract(CHAINCODE_ID);
+
+    const args = [tokenId.toString()];
+    const transactionName = 'ClientAccountBalance';
+
+    const submitResult = await contract.submitTransaction(
+      transactionName,
+      ...args,
+    );
+
+    console.log(submitResult);
+
+    return submitResult;
   }
 
   async createToken(username: string, organization: string, tokenName: string) {
@@ -104,7 +126,7 @@ export class TokenService {
 
     return submitResult;
   }
-  async getClientAccountId( username: string, organization: string ){
+  async getClientAccountId(username: string, organization: string) {
     const gateway = await this.fabricGatewayService.initGateway(
       username,
       organization,
@@ -115,58 +137,73 @@ export class TokenService {
     const transactionName = 'GetUserAccountId';
     const submitResult = await contract.submitTransaction(
       transactionName,
-      ...args,)
+      ...args,
+    );
 
-      return submitResult.toString()
+    return submitResult.toString();
   }
-  async getClientAccountBalance(username: string, organization: string, id: string){
+  async getClientAccountBalance(
+    username: string,
+    organization: string,
+    id: string,
+  ) {
     const gateway = await this.fabricGatewayService.initGateway(
       username,
       organization,
     );
     const network = await gateway.getNetwork(CHANNEL_NAME);
     const contract = network.getContract(CHAINCODE_ID);
-    let args = [id]; 
+    const args = [id];
     const transactionName = 'ClientAccountBalance';
     const submitResult = await contract.submitTransaction(
       transactionName,
-      ...args,)
-    return submitResult
+      ...args,
+    );
+    return submitResult;
   }
-  async mintToken(username: string, organization: string, account: string, id : string, amount : string){
+  async mintToken(
+    username: string,
+    organization: string,
+    account: string,
+    id: string,
+    amount: string,
+  ) {
     const gateway = await this.fabricGatewayService.initGateway(
       username,
       organization,
     );
     const network = await gateway.getNetwork(CHANNEL_NAME);
     const contract = network.getContract(CHAINCODE_ID);
-    let args = [account, id, amount]; 
+    const args = [account, id, amount];
     const transactionName = 'MintToken';
     const submitResult = await contract.submitTransaction(
       transactionName,
-      ...args,)
+      ...args,
+    );
 
-      return submitResult
+    return submitResult;
   }
   async transferTokenFrom(
-    username: string, 
-    organization: string, 
-    sender: string, 
-    recipient: string, 
+    username: string,
+    organization: string,
+    sender: string,
+    recipient: string,
     id: string,
-    amount : string){
+    amount: string,
+  ) {
     const gateway = await this.fabricGatewayService.initGateway(
       username,
       organization,
     );
     const network = await gateway.getNetwork(CHANNEL_NAME);
     const contract = network.getContract(CHAINCODE_ID);
-    let args = [sender, recipient, id, amount]; 
+    const args = [sender, recipient, id, amount];
     const transactionName = 'TransferTokenFrom';
     const submitResult = await contract.submitTransaction(
       transactionName,
-      ...args,)
+      ...args,
+    );
 
-      return submitResult
-    }
+    return submitResult;
+  }
 }

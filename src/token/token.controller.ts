@@ -23,10 +23,10 @@ class MintTokenDto {
   amount: string;
 }
 class TransferTokenDto {
-  sender : string;
-  recipient : string;
-  id : string;
-  amount : string;
+  sender: string;
+  recipient: string;
+  id: string;
+  amount: string;
 }
 
 @Controller('tokens')
@@ -53,10 +53,19 @@ export class TokenController {
   getExchangeSummary(@Query() query: ExchangeRateQueryDto) {
     return this.tokenService.getExchange(query);
   }
-  @Get('balance')
-  getTokenBalance(@Query() query: TokenBalanceQuery) {
+
+  @UseGuards(JwtOtpGuard)
+  @Get('balance/user')
+  getTokenBalance(
+    @Req() { user: { username, organization } },
+    @Query() query: TokenBalanceQuery,
+  ) {
     const { tokenId } = query;
-    return this.tokenService.getTokenBalance(tokenId);
+    return this.tokenService.getUserTokenBalance(
+      username,
+      organization,
+      tokenId,
+    );
   }
 
   @UseGuards(JwtOtpGuard)
@@ -73,31 +82,43 @@ export class TokenController {
   async mintToken(
     @Req() { user: { username, organization } },
     @Body() body: MintTokenDto,
-  ){
+  ) {
     const { id, amount } = body;
-    const account = this.tokenService.getClientAccountId(username, organization);
-    return this.tokenService.mintToken(username, organization, await account, id, amount )
+    const account = this.tokenService.getClientAccountId(
+      username,
+      organization,
+    );
+    return this.tokenService.mintToken(
+      username,
+      organization,
+      await account,
+      id,
+      amount,
+    );
   }
   @UseGuards(JwtOtpGuard)
   @Get('account')
-  getClientAccountBalance(username : string, organization : string, id : string){
-    return this.tokenService.getClientAccountBalance(username, organization, id)
+  getClientAccountBalance(username: string, organization: string, id: string) {
+    return this.tokenService.getClientAccountBalance(
+      username,
+      organization,
+      id,
+    );
   }
   @UseGuards(JwtOtpGuard)
   @Post('transfer')
   async transferToken(
     @Req() { user: { username, organization } },
     @Body() body: TransferTokenDto,
-    ){
-      const {sender, recipient, id, amount} = body
-      return this.tokenService.transferTokenFrom( 
-        username, 
-        organization, 
-        sender, 
-        recipient, 
-        id, 
-        amount)
-
-      }
-      
+  ) {
+    const { sender, recipient, id, amount } = body;
+    return this.tokenService.transferTokenFrom(
+      username,
+      organization,
+      sender,
+      recipient,
+      id,
+      amount,
+    );
+  }
 }
