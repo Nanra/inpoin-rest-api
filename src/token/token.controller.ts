@@ -23,8 +23,8 @@ class MintTokenDto {
   amount: string;
 }
 class TransferTokenDto {
-  sender: string;
   recipient: string;
+  recipientOrganization: string;
   id: string;
   amount: string;
 }
@@ -77,6 +77,7 @@ export class TokenController {
     const { tokenName } = body;
     return this.tokenService.createToken(username, organization, tokenName);
   }
+
   @UseGuards(JwtOtpGuard)
   @Post('mint')
   async mintToken(
@@ -84,18 +85,20 @@ export class TokenController {
     @Body() body: MintTokenDto,
   ) {
     const { id, amount } = body;
-    const account = this.tokenService.getClientAccountId(
+    const account = await this.tokenService.getClientAccountId(
       username,
       organization,
     );
+
     return this.tokenService.mintToken(
       username,
       organization,
-      await account,
+      account,
       id,
       amount,
     );
   }
+
   @UseGuards(JwtOtpGuard)
   @Get('account')
   getClientAccountBalance(username: string, organization: string, id: string) {
@@ -105,18 +108,20 @@ export class TokenController {
       id,
     );
   }
+
   @UseGuards(JwtOtpGuard)
   @Post('transfer')
   async transferToken(
     @Req() { user: { username, organization } },
     @Body() body: TransferTokenDto,
   ) {
-    const { sender, recipient, id, amount } = body;
+    const { recipient, recipientOrganization, id, amount } = body;
+
     return this.tokenService.transferTokenFrom(
       username,
       organization,
-      sender,
       recipient,
+      recipientOrganization,
       id,
       amount,
     );
