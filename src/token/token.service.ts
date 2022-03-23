@@ -222,4 +222,115 @@ export class TokenService {
       message: `transferred ${amount} of token id ${id} from ${sender} to ${recipient}`,
     };
   }
+  async createLp (
+    username: string,
+    organization: string,
+    tokenId: string,
+    tokenSupply: string,
+    tokenPlatformSupply: string
+  ){
+    const gateway = await this.fabricGatewayService.initGateway(
+      username,
+      organization,
+    );
+    const network = await gateway.getNetwork(CHANNEL_NAME);
+    const contract = network.getContract(CHAINCODE_ID);
+    const args = [tokenId, tokenSupply, tokenPlatformSupply];
+    const transactionName = 'CreateLp';
+    const submitResult = await contract.submitTransaction(
+      transactionName,
+      ...args,
+    );
+
+    return submitResult.toString('utf-8');
+  }
+  async addToLP(
+    username: string,
+    organization: string,
+    adderId: string,
+    tokenId: string,
+    amount: string,
+  ){
+    const gateway = await this.fabricGatewayService.initGateway(
+      username,
+      organization,
+    );
+    const network = await gateway.getNetwork(CHANNEL_NAME);
+    const contract = network.getContract(CHAINCODE_ID);
+    const args = [adderId, tokenId, amount];
+    const transactionName = 'AddToLp';
+    const submitResult = await contract.submitTransaction(
+      transactionName,
+      ...args,
+    );
+
+    return submitResult.toString('utf-8');
+  }
+  async takeFromLp (
+    username: string,
+    organization: string,
+    takerId: string,
+    tokenId: string,
+    amount: string,
+  ){
+    const gateway = await this.fabricGatewayService.initGateway(
+      username,
+      organization,
+    );
+    const network = await gateway.getNetwork(CHANNEL_NAME);
+    const contract = network.getContract(CHAINCODE_ID);
+    const args = [takerId, tokenId, amount];
+    const transactionName = 'TakeFromLp';
+    const submitResult = await contract.submitTransaction(
+      transactionName,
+      ...args,
+    );
+
+    return submitResult.toString('utf-8');
+  }
+  async getLpByTokenId(
+    username: string,
+    organization: string,
+    tokenId: string,
+  ){
+    const gateway = await this.fabricGatewayService.initGateway(
+      username,
+      organization,
+    );
+    const network = await gateway.getNetwork(CHANNEL_NAME);
+    const contract = network.getContract(CHAINCODE_ID);
+    const args = [tokenId];
+    const transactionName = 'GetLpByTokenId';
+    const submitResult = await contract.submitTransaction(
+      transactionName,
+      ...args,
+    );
+
+    return submitResult.toString('utf-8');
+  }
+  async setPlatformFeeAmount (
+    username: string,
+    organization: string,
+    platformFee: string,
+  ){
+    const gateway = await this.fabricGatewayService.initGateway(
+      username,
+      organization,
+    );
+    const network = await gateway.getNetwork(CHANNEL_NAME);
+    const contract = network.getContract(CHAINCODE_ID);
+    const args = [platformFee];
+    const transactionName = 'SetPlatformFeeAmount';
+    const submitResult = await contract.submitTransaction(
+      transactionName,
+      ...args,
+    );
+
+    return submitResult.toString('utf-8');
+  }
+
+
+
+
+
 }
