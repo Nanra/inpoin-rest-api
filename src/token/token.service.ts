@@ -15,11 +15,6 @@ export class TokenService {
   ) {}
 
   tokenExchange: TokenExchange[] = [];
-  tokens = [
-    { tokenId: 1, tokenName: 'BUMNPoin', tokenAmount: 100 },
-    { tokenId: 2, tokenName: 'LivinPoin', tokenAmount: 100 },
-    { tokenId: 3, tokenName: 'MilesPoin', tokenAmount: 100 },
-  ];
   
         // create token (1, BUMNPoin)
         // create token (2, LivinPoin)
@@ -30,70 +25,70 @@ export class TokenService {
         // mint token (3, 200000)
 
 
-  exchangeRates = {
-    '1': {
-      tokenName: 'BUMNPoin',
-      rate: 1,
-    },
-    '2': {
-      tokenName: 'LivinPoin',
-      rate: 10,
-    },
-    '3': {
-      tokenName: 'MilesPoin',
-      rate: 200,
-    },
-  };
+  // exchangeRates = {
+  //   '1': {
+  //     tokenName: 'BUMNPoin',
+  //     rate: 1,
+  //   },
+  //   '2': {
+  //     tokenName: 'LivinPoin',
+  //     rate: 10,
+  //   },
+  //   '3': {
+  //     tokenName: 'MilesPoin',
+  //     rate: 200,
+  //   },
+  // };
 
-  getRate(exchangeRateQuery: ExchangeRateQueryDto) {
-    const { fromTokenId, toTokenId } = exchangeRateQuery;
+  // getRate(exchangeRateQuery: ExchangeRateQueryDto) {
+  //   const { fromTokenId, toTokenId } = exchangeRateQuery;
 
-    if (toTokenId == '1') {
-      const rate = this.exchangeRates[fromTokenId].rate;
-      return rate;
-    }
+  //   if (toTokenId == '1') {
+  //     const rate = this.exchangeRates[fromTokenId].rate;
+  //     return rate;
+  //   }
 
-    if (fromTokenId == '1') {
-      let rate = this.exchangeRates[toTokenId].rate;
-      rate = 1 / rate;
-      return rate;
-    }
+  //   if (fromTokenId == '1') {
+  //     let rate = this.exchangeRates[toTokenId].rate;
+  //     rate = 1 / rate;
+  //     return rate;
+  //   }
 
-    const inpoinRate = this.exchangeRates[fromTokenId].rate;
-    const rate = inpoinRate / this.exchangeRates[toTokenId].rate;
+  //   const inpoinRate = this.exchangeRates[fromTokenId].rate;
+  //   const rate = inpoinRate / this.exchangeRates[toTokenId].rate;
 
-    return rate;
-  }
+  //   return rate;
+  // }
 
-  newExchange(fromTokenId: string, toTokenId: string, fromTokenAmount: number) {
-    const exchangeId = new Date().toLocaleString();
-    const newTokenExchange = new TokenExchange(
-      exchangeId,
-      fromTokenId,
-      toTokenId,
-      fromTokenAmount,
-    );
-    this.tokenExchange.push(newTokenExchange);
-    return this.tokenExchange;
-  }
+  // newExchange(fromTokenId: string, toTokenId: string, fromTokenAmount: number) {
+  //   const exchangeId = new Date().toLocaleString();
+  //   const newTokenExchange = new TokenExchange(
+  //     exchangeId,
+  //     fromTokenId,
+  //     toTokenId,
+  //     fromTokenAmount,
+  //   );
+  //   this.tokenExchange.push(newTokenExchange);
+  //   return this.tokenExchange;
+  // }
 
-  getExchange(exchangeRateQuery: ExchangeRateQueryDto) {
-    const { toTokenId, fromTokenAmount } = exchangeRateQuery;
-    const tokenRate = this.getRate(exchangeRateQuery);
-    const toTokenExchangeAmount = fromTokenAmount * tokenRate;
-    const adminFee = 1000 / this.exchangeRates[toTokenId].rate;
-    const totalExchange = toTokenExchangeAmount - adminFee;
-    return { fromTokenAmount, toTokenExchangeAmount, adminFee, totalExchange };
-  }
+  // getExchange(exchangeRateQuery: ExchangeRateQueryDto) {
+  //   const { toTokenId, fromTokenAmount } = exchangeRateQuery;
+  //   const tokenRate = this.getRate(exchangeRateQuery);
+  //   const toTokenExchangeAmount = fromTokenAmount * tokenRate;
+  //   const adminFee = 1000 / this.exchangeRates[toTokenId].rate;
+  //   const totalExchange = toTokenExchangeAmount - adminFee;
+  //   return { fromTokenAmount, toTokenExchangeAmount, adminFee, totalExchange };
+  // }
 
   async getTokens(username: string, organization: string, id: string) {
-    const bumnPoin = await this.getClientAccountBalance(username, organization, '1')
-    const livinPoin = await this.getClientAccountBalance(username, organization, '2')
-    const milesPoin = await this.getClientAccountBalance(username, organization, '3')
+    const bumnPoinBalance = await this.getClientAccountBalance(username, organization, '1')
+    const livinPoinBalance = await this.getClientAccountBalance(username, organization, '2')
+    const milesPoinBalance = await this.getClientAccountBalance(username, organization, '3')
     const tokens = [  
-    { tokenId: 1, tokenName: 'BUMNPoin', tokenAmount: bumnPoin },
-    { tokenId: 2, tokenName: 'LivinPoin', tokenAmount: livinPoin },
-    { tokenId: 3, tokenName: 'MilesPoin', tokenAmount: milesPoin },
+    { tokenId: 1, tokenName: 'BUMNPoin', tokenAmount: bumnPoinBalance },
+    { tokenId: 2, tokenName: 'LivinPoin', tokenAmount: livinPoinBalance },
+    { tokenId: 3, tokenName: 'MilesPoin', tokenAmount: milesPoinBalance },
     ]  
     return [...tokens];
   }
@@ -176,6 +171,7 @@ export class TokenService {
       transactionName,
       ...args,
     );
+
     return submitResult.toString('utf-8');
   }
 

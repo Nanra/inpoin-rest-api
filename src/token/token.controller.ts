@@ -56,24 +56,24 @@ export class TokenController {
     return this.tokenService.getTokens(username, organization, id);
   }
 
-  @Get('exchange-rate')
-  getExchangeRate(@Query() query: ExchangeRateQueryDto) {
-    return this.tokenService.getRate(query);
-  }
+  // @Get('exchange-rate')
+  // getExchangeRate(@Query() query: ExchangeRateQueryDto) {
+  //   return this.tokenService.getRate(query);
+  // }
 
-  @Post('exchange')
-  addTransaction(
-    @Body('fromTokenId') fromTokenId: string,
-    @Body('toTokenId') toTokenId: string,
-    @Body('fromTokenAmount') fromTokenAmount: number,
-  ) {
-    return this.tokenService.newExchange(fromTokenId, toTokenId, fromTokenAmount);
-  }
+  // @Post('exchange')
+  // addTransaction(
+  //   @Body('fromTokenId') fromTokenId: string,
+  //   @Body('toTokenId') toTokenId: string,
+  //   @Body('fromTokenAmount') fromTokenAmount: number,
+  // ) {
+  //   return this.tokenService.newExchange(fromTokenId, toTokenId, fromTokenAmount);
+  // }
 
-  @Get('exchange/summary')
-  getExchangeSummary(@Query() query: ExchangeRateQueryDto) {
-    return this.tokenService.getExchange(query);
-  }
+  // @Get('exchange/summary')
+  // getExchangeSummary(@Query() query: ExchangeRateQueryDto) {
+  //   return this.tokenService.getExchange(query);
+  // }
 
   @UseGuards(JwtOtpGuard)
   @Get('balance/user')
