@@ -20,6 +20,15 @@ export class TokenService {
     { tokenId: 2, tokenName: 'LivinPoin', tokenAmount: 100 },
     { tokenId: 3, tokenName: 'MilesPoin', tokenAmount: 100 },
   ];
+  
+        // create token (1, BUMNPoin)
+        // create token (2, LivinPoin)
+        // create token (3, MilesPoin)
+
+        // mint token (1, 10000000)
+        // mint token (2, 1000000)
+        // mint token (3, 200000)
+
 
   exchangeRates = {
     '1': {
@@ -35,10 +44,6 @@ export class TokenService {
       rate: 200,
     },
   };
-
-  getTokens() {
-    return [...this.tokens];
-  }
 
   getRate(exchangeRateQuery: ExchangeRateQueryDto) {
     const { fromTokenId, toTokenId } = exchangeRateQuery;
@@ -60,7 +65,7 @@ export class TokenService {
     return rate;
   }
 
-  exchange(fromTokenId: string, toTokenId: string, fromTokenAmount: number) {
+  newExchange(fromTokenId: string, toTokenId: string, fromTokenAmount: number) {
     const exchangeId = new Date().toLocaleString();
     const newTokenExchange = new TokenExchange(
       exchangeId,
@@ -79,6 +84,18 @@ export class TokenService {
     const adminFee = 1000 / this.exchangeRates[toTokenId].rate;
     const totalExchange = toTokenExchangeAmount - adminFee;
     return { fromTokenAmount, toTokenExchangeAmount, adminFee, totalExchange };
+  }
+
+  async getTokens(username: string, organization: string, id: string) {
+    const bumnPoin = await this.getClientAccountBalance(username, organization, '1')
+    const livinPoin = await this.getClientAccountBalance(username, organization, '2')
+    const milesPoin = await this.getClientAccountBalance(username, organization, '3')
+    const tokens = [  
+    { tokenId: 1, tokenName: 'BUMNPoin', tokenAmount: bumnPoin },
+    { tokenId: 2, tokenName: 'LivinPoin', tokenAmount: livinPoin },
+    { tokenId: 3, tokenName: 'MilesPoin', tokenAmount: milesPoin },
+    ]  
+    return [...tokens];
   }
 
   async getUserTokenBalance(
@@ -227,15 +244,18 @@ export class TokenService {
     organization: string,
     tokenId: string,
     tokenSupply: string,
-    tokenPlatformSupply: string
+    tokenPlatformSupply: string,
+    exchangeRate: string
+
   ){
     const gateway = await this.fabricGatewayService.initGateway(
       username,
       organization,
     );
+    //get tokenSupply 
     const network = await gateway.getNetwork(CHANNEL_NAME);
     const contract = network.getContract(CHAINCODE_ID);
-    const args = [tokenId, tokenSupply, tokenPlatformSupply];
+    const args = [tokenId, tokenSupply, tokenPlatformSupply, exchangeRate];
     const transactionName = 'CreateLp';
     const submitResult = await contract.submitTransaction(
       transactionName,
@@ -244,7 +264,8 @@ export class TokenService {
 
     return submitResult.toString('utf-8');
   }
-  async addToLP(
+  
+    async addToLP(
     username: string,
     organization: string,
     adderId: string,
@@ -329,8 +350,92 @@ export class TokenService {
     return submitResult.toString('utf-8');
   }
 
+  async setPlatformTokenId (
+    username: string,
+    organization: string,
+    tokenId: string,
+  ){
+    const gateway = await this.fabricGatewayService.initGateway(
+      username,
+      organization,
+    );
+    const network = await gateway.getNetwork(CHANNEL_NAME);
+    const contract = network.getContract(CHAINCODE_ID);
+    const args = [tokenId];
+    const transactionName = 'SetPlatformFeeAmount';
+    const submitResult = await contract.submitTransaction(
+      transactionName,
+      ...args,
+    );
 
+    return submitResult.toString('utf-8');
+  }
 
+  async getPlatformTokenId(username: string, organization: string){
+    const gateway = await this.fabricGatewayService.initGateway(
+      username,
+      organization,
+    );
+    const network = await gateway.getNetwork(CHANNEL_NAME);
+    const contract = network.getContract(CHAINCODE_ID);
+    const args = [];
+    const transactionName = 'GetPlatformTokenId';
+    const submitResult = await contract.submitTransaction(
+      transactionName,
+      ...args,
+    );
+      return submitResult.toString('utf-8');
+    }
 
+    async getPlatformFeeAmount(username: string, organization: string){
+      const gateway = await this.fabricGatewayService.initGateway(
+        username,
+        organization,
+      );
+      const network = await gateway.getNetwork(CHANNEL_NAME);
+      const contract = network.getContract(CHAINCODE_ID);
+      const args = [];
+      const transactionName = 'GetPlatformFeeAmount';
+      const submitResult = await contract.submitTransaction(
+        transactionName,
+        ...args,
+      );
+        return submitResult.toString('utf-8');
+      }
 
+    async saveLpState(username: string, organization: string){
+      const gateway = await this.fabricGatewayService.initGateway(
+        username,
+        organization,
+      );
+      const network = await gateway.getNetwork(CHANNEL_NAME);
+      const contract = network.getContract(CHAINCODE_ID);
+      const args = [];
+      const transactionName = 'SaveLPState';
+      const submitResult = await contract.submitTransaction(
+        transactionName,
+        ...args,
+      );
+        return submitResult.toString('utf-8');
+    }
+    async exchange(
+      username: string, 
+      organization: string, 
+      fromTokenId: string, 
+      toTokenId: string, 
+      amount: string,){
+      const gateway = await this.fabricGatewayService.initGateway(
+        username,
+        organization,
+      );
+      const network = await gateway.getNetwork(CHANNEL_NAME);
+      const contract = network.getContract(CHAINCODE_ID);
+      const args = [fromTokenId, toTokenId, amount];
+      const transactionName = 'Exchange';
+      const submitResult = await contract.submitTransaction(
+        transactionName,
+        ...args,
+      );
+        return submitResult.toString('utf-8');
+    }
 }
