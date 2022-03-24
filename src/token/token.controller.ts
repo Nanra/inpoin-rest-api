@@ -28,31 +28,52 @@ class TransferTokenDto {
   id: string;
   amount: string;
 }
+class TokenExchangeDto {
+  toTokenId: string;
+  fromTokenId: string;
+  amount: string
+}
+class CreateLpDto {
+  tokenId: string;
+  tokenSupply: string;
+  tokenPlatformSupply: string;
+  exchangeRate: string
+}
+class SetPlatformFeeDto {
+  platformFee: string;
+}
+class SetPlatformTokenIdDto {
+  tokenId: string;
+}
 
 @Controller('tokens')
 export class TokenController {
   constructor(private readonly tokenService: TokenService) {}
 
+  @UseGuards(JwtOtpGuard)
   @Get('user')
-  getTokenList() {
-    return this.tokenService.getTokens();
+  getTokenList(username: string, organization: string, id: string) {
+    return this.tokenService.getTokens(username, organization, id);
   }
-  @Get('exchange-rate')
-  getExchangeRate(@Query() query: ExchangeRateQueryDto) {
-    return this.tokenService.getRate(query);
-  }
-  @Post('exchange')
-  addTransaction(
-    @Body('fromTokenId') fromTokenId: string,
-    @Body('toTokenId') toTokenId: string,
-    @Body('fromTokenAmount') fromTokenAmount: number,
-  ) {
-    return this.tokenService.exchange(fromTokenId, toTokenId, fromTokenAmount);
-  }
-  @Get('exchange/summary')
-  getExchangeSummary(@Query() query: ExchangeRateQueryDto) {
-    return this.tokenService.getExchange(query);
-  }
+
+  // @Get('exchange-rate')
+  // getExchangeRate(@Query() query: ExchangeRateQueryDto) {
+  //   return this.tokenService.getRate(query);
+  // }
+
+  // @Post('exchange')
+  // addTransaction(
+  //   @Body('fromTokenId') fromTokenId: string,
+  //   @Body('toTokenId') toTokenId: string,
+  //   @Body('fromTokenAmount') fromTokenAmount: number,
+  // ) {
+  //   return this.tokenService.newExchange(fromTokenId, toTokenId, fromTokenAmount);
+  // }
+
+  // @Get('exchange/summary')
+  // getExchangeSummary(@Query() query: ExchangeRateQueryDto) {
+  //   return this.tokenService.getExchange(query);
+  // }
 
   @UseGuards(JwtOtpGuard)
   @Get('balance/user')
@@ -88,14 +109,41 @@ export class TokenController {
     const account = await this.tokenService.getClientAccountId(
       username,
       organization,
-    );
-
+    );  
     return this.tokenService.mintToken(
       username,
       organization,
       account,
       id,
       amount,
+    );
+  }
+
+  @UseGuards(JwtOtpGuard)
+  @Post('setplatformfee')
+  async setPlatformFeeAmount (
+    @Req() { user: { username, organization } },
+    @Body() body: SetPlatformFeeDto,
+  ) {
+    const { platformFee } = body; 
+    return this.tokenService.setPlatformFeeAmount(
+      username,
+      organization,
+      platformFee,
+    );
+  }
+
+  @UseGuards(JwtOtpGuard)
+  @Post('setplatformtoken')
+  async setPlatformTokenId (
+    @Req() { user: { username, organization } },
+    @Body() body: SetPlatformTokenIdDto,
+  ) {
+    const { tokenId } = body;  
+    return this.tokenService.setPlatformFeeAmount(
+      username,
+      organization,
+      tokenId,
     );
   }
 
@@ -124,6 +172,40 @@ export class TokenController {
       recipientOrganization,
       id,
       amount,
+    );
+  }
+  @UseGuards(JwtOtpGuard)
+  @Post('exchange')
+  newExchangeTransaction(
+    @Req() {user:{ username, organization} },
+    @Body() body: TokenExchangeDto,
+  ) {
+    const {fromTokenId, toTokenId, amount} = body
+    return this.tokenService.exchange(
+      username, 
+      organization, 
+      fromTokenId, 
+      toTokenId, 
+      amount);
+    }
+
+  @UseGuards(JwtOtpGuard)
+  @Post('createLP')
+  async createLp(
+    @Req() { user: { username, organization } },
+    @Body() body: CreateLpDto,
+  ) {
+    const { tokenId } = body;
+    const tokenSupply = await this.tokenService.getLpByTokenId(username, organization, tokenId);
+    const tokenPlatformSupply = await this.tokenService.getPlatformTokenId(username, organization);
+    const exchangeRate = await this.tokenService.getPlatformFeeAmount(username, organization) ;
+    return this.tokenService.transferTokenFrom(
+      username,
+      organization,
+      tokenId,
+      tokenSupply,
+      tokenPlatformSupply,
+      exchangeRate,
     );
   }
 }
