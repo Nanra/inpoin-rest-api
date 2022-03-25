@@ -4,6 +4,7 @@ import { ExchangeRateQueryDto } from './dto/exchange-rate-query.dto';
 import { FabricGatewayService } from 'src/fabric-gateway/fabric-gateway.service';
 import { UsersService } from 'src/users/users.service';
 
+
 const CHANNEL_NAME = 'inpoinchannel';
 const CHAINCODE_ID = 'lp'; // name of the chaincode
 
@@ -82,10 +83,10 @@ export class TokenService {
   // }
 
   async getTokens(username: string, organization: string, tokenId: string) {
-    const bumnPoinBalance = await this.getClientAccountBalance(username, organization, tokenId='1')
-    const livinPoinBalance = await this.getClientAccountBalance(username, organization, tokenId='2')
-    const milesPoinBalance = await this.getClientAccountBalance(username, organization, tokenId='3')
-    console.log(bumnPoinBalance)
+    const bumnPoinBalance = Number(await this.getClientAccountBalance(username, organization, tokenId='1'))
+    const livinPoinBalance = Number(await this.getClientAccountBalance(username, organization, tokenId='2'))
+    const milesPoinBalance = Number(await this.getClientAccountBalance(username, organization, tokenId='3'))
+    
     const tokens = [  
     { tokenId: 1, tokenName: 'BUMNPoin', tokenAmount: bumnPoinBalance },
     { tokenId: 2, tokenName: 'LivinPoin', tokenAmount: livinPoinBalance },
@@ -115,7 +116,9 @@ export class TokenService {
       ...args,
     );
 
-    return submitResult.toString('utf-8');
+    const result = submitResult.toString('utf-8')
+
+    return Number(result)
   }
 
   async createToken(username: string, organization: string, tokenId: string, tokenName: string) {
@@ -173,7 +176,9 @@ export class TokenService {
       ...args,
     );
 
-    return submitResult.toString('utf-8');
+    const result = submitResult.toString('utf-8')
+
+    return Number(result)
   }
 
   async transferTokenFrom(
