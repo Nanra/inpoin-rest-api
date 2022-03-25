@@ -81,10 +81,11 @@ export class TokenService {
   //   return { fromTokenAmount, toTokenExchangeAmount, adminFee, totalExchange };
   // }
 
-  async getTokens(username: string, organization: string, id: string) {
-    const bumnPoinBalance = await this.getClientAccountBalance(username, organization, '1')
-    const livinPoinBalance = await this.getClientAccountBalance(username, organization, '2')
-    const milesPoinBalance = await this.getClientAccountBalance(username, organization, '3')
+  async getTokens(username: string, organization: string, tokenId: string) {
+    const bumnPoinBalance = await this.getClientAccountBalance(username, organization, tokenId='1')
+    const livinPoinBalance = await this.getClientAccountBalance(username, organization, tokenId='2')
+    const milesPoinBalance = await this.getClientAccountBalance(username, organization, tokenId='3')
+    console.log(bumnPoinBalance)
     const tokens = [  
     { tokenId: 1, tokenName: 'BUMNPoin', tokenAmount: bumnPoinBalance },
     { tokenId: 2, tokenName: 'LivinPoin', tokenAmount: livinPoinBalance },
@@ -93,12 +94,12 @@ export class TokenService {
     return [...tokens];
   }
 
-  async getUserTokenBalance(
+  async getClientAccountBalance(
     username: string,
     organization: string,
-    tokenId: number,
+    tokenId: string,
   ) {
-    // Get token balance from blockchain
+
     const gateway = await this.fabricGatewayService.initGateway(
       username,
       organization,
@@ -106,7 +107,7 @@ export class TokenService {
     const network = await gateway.getNetwork(CHANNEL_NAME);
     const contract = network.getContract(CHAINCODE_ID);
 
-    const args = [tokenId.toString()];
+    const args = [tokenId];
     const transactionName = 'ClientAccountBalance';
 
     const submitResult = await contract.submitTransaction(
@@ -114,12 +115,10 @@ export class TokenService {
       ...args,
     );
 
-    console.log(submitResult);
-
     return submitResult.toString('utf-8');
   }
 
-  async createToken(username: string, organization: string, tokenName: string) {
+  async createToken(username: string, organization: string, tokenId: string, tokenName: string) {
     const gateway = await this.fabricGatewayService.initGateway(
       username,
       organization,
@@ -127,7 +126,7 @@ export class TokenService {
     const network = await gateway.getNetwork(CHANNEL_NAME);
     const contract = network.getContract(CHAINCODE_ID);
 
-    const args = [tokenName];
+    const args = [tokenId, tokenName];
     const transactionName = 'CreateToken';
     const submitResult = await contract.submitTransaction(
       transactionName,
@@ -146,27 +145,6 @@ export class TokenService {
     const contract = network.getContract(CHAINCODE_ID);
     const args = [];
     const transactionName = 'ClientAccountID';
-    const submitResult = await contract.submitTransaction(
-      transactionName,
-      ...args,
-    );
-
-    return submitResult.toString('utf-8');
-  }
-
-  async getClientAccountBalance(
-    username: string,
-    organization: string,
-    id: string,
-  ) {
-    const gateway = await this.fabricGatewayService.initGateway(
-      username,
-      organization,
-    );
-    const network = await gateway.getNetwork(CHANNEL_NAME);
-    const contract = network.getContract(CHAINCODE_ID);
-    const args = [id];
-    const transactionName = 'ClientAccountBalance';
     const submitResult = await contract.submitTransaction(
       transactionName,
       ...args,
@@ -251,12 +229,12 @@ export class TokenService {
     const network = await gateway.getNetwork(CHANNEL_NAME);
     const contract = network.getContract(CHAINCODE_ID);
     const args = [tokenId, tokenSupply, tokenPlatformSupply, exchangeRate];
-    const transactionName = 'CreateLp';
+    const transactionName = 'CreateLP';
     const submitResult = await contract.submitTransaction(
       transactionName,
       ...args,
     );
-
+    
     return submitResult.toString('utf-8');
   }
   
@@ -341,7 +319,7 @@ export class TokenService {
       transactionName,
       ...args,
     );
-
+      console.log(submitResult)
     return submitResult.toString('utf-8');
   }
 
@@ -357,7 +335,7 @@ export class TokenService {
     const network = await gateway.getNetwork(CHANNEL_NAME);
     const contract = network.getContract(CHAINCODE_ID);
     const args = [tokenId];
-    const transactionName = 'SetPlatformFeeAmount';
+    const transactionName = 'SetPlatformTokenID';
     const submitResult = await contract.submitTransaction(
       transactionName,
       ...args,
