@@ -77,10 +77,10 @@ export class TokenController {
   //   return this.tokenService.newExchange(fromTokenId, toTokenId, fromTokenAmount);
   // }
 
-  // @Get('exchange/summary')
-  // getExchangeSummary(@Query() query: ExchangeRateQueryDto) {
-  //   return this.tokenService.getExchange(query);
-  // }
+  @Get('exchange/summary')
+  getExchangeSummary(@Query() query: ExchangeRateQueryDto) {
+    return this.tokenService.getExchange(query);
+  }
 
   @UseGuards(JwtOtpGuard)
   @Get('balance/token')
