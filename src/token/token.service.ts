@@ -247,8 +247,7 @@ export class TokenService {
     const gateway = await this.fabricGatewayService.initGateway(
       username,
       organization,
-    );
-    //get tokenSupply 
+    ); 
     const network = await gateway.getNetwork(CHANNEL_NAME);
     const contract = network.getContract(CHAINCODE_ID);
     const args = [tokenId, tokenSupply, tokenPlatformSupply, exchangeRate];
