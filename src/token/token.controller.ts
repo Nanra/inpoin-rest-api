@@ -12,9 +12,10 @@ import { ExchangeRateQueryDto } from './dto/exchange-rate-query.dto';
 import { JwtOtpGuard } from 'src/auth/jwt-otp.guard';
 
 class TokenBalanceQuery {
-  tokenId: number;
+  tokenId: string;
 }
 class CreateTokenDto {
+  tokenId: string;
   tokenName: string;
 }
 class MintTokenDto {
@@ -52,8 +53,14 @@ export class TokenController {
 
   @UseGuards(JwtOtpGuard)
   @Get('user')
-  getTokenList(username: string, organization: string, id: string) {
-    return this.tokenService.getTokens(username, organization, id);
+  getTokenList(
+    @Req() { user: { username, organization } },
+    tokenId: string,
+    ) {
+    return this.tokenService.getTokens(
+      username, 
+      organization, 
+      tokenId);
   }
 
   // @Get('exchange-rate')
@@ -76,13 +83,13 @@ export class TokenController {
   // }
 
   @UseGuards(JwtOtpGuard)
-  @Get('balance/user')
+  @Get('balance/token')
   getTokenBalance(
     @Req() { user: { username, organization } },
     @Query() query: TokenBalanceQuery,
   ) {
     const { tokenId } = query;
-    return this.tokenService.getUserTokenBalance(
+    return this.tokenService.getClientAccountBalance(
       username,
       organization,
       tokenId,
@@ -95,8 +102,8 @@ export class TokenController {
     @Req() { user: { username, organization } },
     @Body() body: CreateTokenDto,
   ) {
-    const { tokenName } = body;
-    return this.tokenService.createToken(username, organization, tokenName);
+    const { tokenId, tokenName } = body;
+    return this.tokenService.createToken(username, organization, tokenId, tokenName);
   }
 
   @UseGuards(JwtOtpGuard)
@@ -140,20 +147,10 @@ export class TokenController {
     @Body() body: SetPlatformTokenIdDto,
   ) {
     const { tokenId } = body;  
-    return this.tokenService.setPlatformFeeAmount(
+    return this.tokenService.setPlatformTokenId(
       username,
       organization,
       tokenId,
-    );
-  }
-
-  @UseGuards(JwtOtpGuard)
-  @Get('account')
-  getClientAccountBalance(username: string, organization: string, id: string) {
-    return this.tokenService.getClientAccountBalance(
-      username,
-      organization,
-      id,
     );
   }
 
@@ -195,11 +192,8 @@ export class TokenController {
     @Req() { user: { username, organization } },
     @Body() body: CreateLpDto,
   ) {
-    const { tokenId } = body;
-    const tokenSupply = await this.tokenService.getLpByTokenId(username, organization, tokenId);
-    const tokenPlatformSupply = await this.tokenService.getPlatformTokenId(username, organization);
-    const exchangeRate = await this.tokenService.getPlatformFeeAmount(username, organization) ;
-    return this.tokenService.transferTokenFrom(
+    const { tokenId, tokenSupply, tokenPlatformSupply, exchangeRate } = body;
+    return this.tokenService.createLp(
       username,
       organization,
       tokenId,
