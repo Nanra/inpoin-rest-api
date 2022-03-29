@@ -11,6 +11,7 @@ import { OtpModule } from './otp/otp.module';
 import { Otp } from './otp/otp.entitiy';
 import { EmailModule } from './email/email.module';
 import { FabricGatewayModule } from './fabric-gateway/fabric-gateway.module';
+import { ExchangeTransaction } from './token/echange-transaction.entity';
 
 @Module({
   imports: [
@@ -22,7 +23,7 @@ import { FabricGatewayModule } from './fabric-gateway/fabric-gateway.module';
       username: 'inpoin',
       password: 'inpoin123!@#',
       database: 'inpoin_staging',
-      entities: [User, Otp],
+      entities: [User, Otp, ExchangeTransaction],
       synchronize: true,
     }),
     FabricGatewayModule,

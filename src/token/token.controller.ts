@@ -20,7 +20,7 @@ class CreateTokenDto {
 }
 class MintTokenDto {
   account: string;
-  id: string;
+  tokenId: string;
   amount: string;
 }
 class TransferTokenDto {
@@ -112,7 +112,7 @@ export class TokenController {
     @Req() { user: { username, organization } },
     @Body() body: MintTokenDto,
   ) {
-    const { id, amount } = body;
+    const { tokenId, amount } = body;
     const account = await this.tokenService.getClientAccountId(
       username,
       organization,
@@ -121,7 +121,7 @@ export class TokenController {
       username,
       organization,
       account,
-      id,
+      tokenId,
       amount,
     );
   }
@@ -201,5 +201,23 @@ export class TokenController {
       tokenPlatformSupply,
       exchangeRate,
     );
+  }
+
+  @UseGuards(JwtOtpGuard)
+  @Get('lp')
+  async getLpByTokenId(
+    @Req() { user: { username, organization } },
+    @Query() { tokenId },
+  ) {
+    return this.tokenService.getLpByTokenId(username, organization, tokenId);
+  }
+
+  @UseGuards(JwtOtpGuard)
+  @Get('transaction-history')
+  async getTransactionHistory(
+    @Req() { user: { username } },
+    @Query() { limit },
+  ) {
+    return this.tokenService.getTransactionHistory(username, limit);
   }
 }
