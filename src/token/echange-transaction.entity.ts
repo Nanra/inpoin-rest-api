@@ -26,13 +26,13 @@ export class ExchangeTransaction {
   @Column()
   to_token_name: string;
 
-  @Column()
+  @Column('decimal')
   from_token_amount: number;
 
-  @Column()
+  @Column('decimal')
   to_token_amount: number;
 
-  @Column()
+  @Column('decimal')
   exchange_rate: number;
 
   @Column()
@@ -41,7 +41,7 @@ export class ExchangeTransaction {
   @Column()
   fee_token_name: string;
 
-  @Column()
+  @Column('decimal')
   fee_amount: number;
 
   @Column()

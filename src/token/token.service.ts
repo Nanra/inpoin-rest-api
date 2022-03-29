@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { TokenExchange } from './token.model';
 import { ExchangeRateQueryDto } from './dto/exchange-rate-query.dto';
 import { FabricGatewayService } from 'src/fabric-gateway/fabric-gateway.service';
@@ -480,34 +480,42 @@ export class TokenService {
     const args = [fromTokenId, toTokenId, amount];
     const transactionName = 'Exchange';
     const transaction = contract.createTransaction(transactionName);
-    const submitResult = await transaction.submit(...args);
-    const result = JSON.parse(submitResult.toString('utf-8'));
-    const txId = transaction.getTransactionId();
 
-    const from_token_name = await this.getTokenName(contract, fromTokenId);
-    const to_token_name = await this.getTokenName(contract, toTokenId);
+    try {
+      const submitResult = await transaction.submit(...args);
+      const result = JSON.parse(submitResult.toString('utf-8'));
+      const txId = transaction.getTransactionId();
 
-    const exchangeTransaction = {
-      username,
-      from_token_id: result.FromTokenID,
-      from_token_name,
-      to_token_id: result.ToTokenID,
-      to_token_name,
-      from_token_amount: result.FromTokenAmount,
-      to_token_amount: result.ToTokenAmount,
-      exchange_rate: result.ExchangeRate,
-      fee_token_id: result.ToTokenID,
-      fee_token_name: to_token_name,
-      fee_amount: result.PlatformFee,
-      tx_id: txId,
-    };
+      console.log(result);
 
-    await this.exchangeTransactionRepository.save(exchangeTransaction);
+      const from_token_name = await this.getTokenName(contract, fromTokenId);
+      const to_token_name = await this.getTokenName(contract, toTokenId);
 
-    return {
-      ...result,
-      txId,
-    };
+      const exchangeTransaction = {
+        username,
+        from_token_id: result.FromTokenID,
+        from_token_name,
+        to_token_id: result.ToTokenID,
+        to_token_name,
+        from_token_amount: result.FromTokenAmount,
+        to_token_amount: result.ToTokenAmount,
+        exchange_rate: result.ExchangeRate,
+        fee_token_id: result.ToTokenID,
+        fee_token_name: to_token_name,
+        fee_amount: result.PlatformFee,
+        tx_id: txId,
+      };
+
+      await this.exchangeTransactionRepository.save(exchangeTransaction);
+
+      return {
+        ...result,
+        txId,
+      };
+    } catch (err) {
+      console.log(err);
+      throw new HttpException(err.responses[0].response.message, 500);
+    }
   }
 
   async getTransactionHistory(username: string, limit: number) {
