@@ -10,40 +10,113 @@ import {
 import { TokenService } from './token.service';
 import { ExchangeRateQueryDto } from './dto/exchange-rate-query.dto';
 import { JwtOtpGuard } from 'src/auth/jwt-otp.guard';
+import { ApiProperty } from '@nestjs/swagger';
 
 class TokenBalanceQuery {
   tokenId: string;
 }
 class CreateTokenDto {
+  @ApiProperty({
+    type: String,
+    description: "the generated token Id"
+  })
   tokenId: string;
+  @ApiProperty({
+    type: String,
+    description: "the desired token name"
+  })
   tokenName: string;
 }
 class MintTokenDto {
+  @ApiProperty({
+    type: String,
+    description: "the minter account"
+  })
   account: string;
+  @ApiProperty({
+    type: String,
+    description: "the minted token Id"
+  })
   tokenId: string;
+  @ApiProperty({
+    type: String,
+    description: "the desired minting amount"
+  })
   amount: string;
 }
 class TransferTokenDto {
+  @ApiProperty({
+    type: String,
+    description: "the recipient username"
+  })
   recipient: string;
+  @ApiProperty({
+    type: String,
+    description: "the recipient organization"
+  })
   recipientOrganization: string;
+  @ApiProperty({
+    type: String,
+    description: "the token Id"
+  })
   id: string;
+  @ApiProperty({
+    type: String,
+    description: "the desired token amount"
+  })
   amount: string;
 }
 class TokenExchangeDto {
+  @ApiProperty({
+    type: String,
+    description: "the desired token Id to be received"
+  })
   toTokenId: string;
+  @ApiProperty({
+    type: String,
+    description: "the desired token Id to be exchanged"
+  })
   fromTokenId: string;
+  @ApiProperty({
+    type: String,
+    description: "the desired token ammount to be exchanged"
+  })
   amount: string
 }
 class CreateLpDto {
+  @ApiProperty({
+    type: String,
+    description: "the desired token Id to be added"
+  })
   tokenId: string;
+  @ApiProperty({
+    type: String,
+    description: "the desired non-native token amount to be added"
+  })
   tokenSupply: string;
+  @ApiProperty({
+    type: String,
+    description: "the desired native token amount to be added"
+  })
   tokenPlatformSupply: string;
+  @ApiProperty({
+    type: String,
+    description: "the exchange rate of non-native token to the native token"
+  })
   exchangeRate: string
 }
 class SetPlatformFeeDto {
+  @ApiProperty({
+    type: String,
+    description: "the desired platform token amount for transaction fee"
+  })  
   platformFee: string;
 }
 class SetPlatformTokenIdDto {
+  @ApiProperty({
+    type: String,
+    description: "the desired platform token Id"
+  })
   tokenId: string;
 }
 
