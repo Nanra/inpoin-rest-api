@@ -27,6 +27,7 @@
     "@nestjs/jwt": "^8.0.0",
     "@nestjs/passport": "^8.2.1",
     "@nestjs/platform-express": "^8.0.0",
+    "@nestjs/swagger": "^5.2.1",
     "@nestjs/typeorm": "^8.0.3",
     "bcrypt": "^5.0.1",
     "fabric-ca-client": "^2.2.11",
@@ -43,6 +44,7 @@
     "rxjs": "^7.2.0",
     "sib-api-v3-sdk": "^8.3.0",
     "speakeasy": "^2.0.0",
+    "swagger-ui-express": "^4.3.0",
     "typeorm": "^0.2.45",
     "uninstall": "^0.0.0"
   },
