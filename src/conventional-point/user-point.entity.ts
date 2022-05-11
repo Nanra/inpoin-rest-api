@@ -15,8 +15,8 @@ export class UserPoint {
   @Column()
   point_name: string;
 
-  @Column({ nullable: true })
-  point_amount: string;
+  @Column({ nullable: false })
+  point_amount: number;
 
   @Column()
   paired: Boolean;
