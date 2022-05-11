@@ -12,18 +12,19 @@ import { Otp } from './otp/otp.entitiy';
 import { EmailModule } from './email/email.module';
 import { FabricGatewayModule } from './fabric-gateway/fabric-gateway.module';
 import { ExchangeTransaction } from './token/echange-transaction.entity';
+import { UserPoint } from './conventional-point/user-point.entity';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: '157.230.39.222',
+      host: 'localhost',
       port: 5432,
-      username: 'inpoin',
-      password: 'inpoin123!@#',
-      database: 'inpoin_staging',
-      entities: [User, Otp, ExchangeTransaction],
+      username: 'inpoinudev',
+      password: 'inpoinsecret',
+      database: 'inpoin_dev',
+      entities: [User, Otp, ExchangeTransaction, UserPoint],
       synchronize: true,
     }),
     FabricGatewayModule,
