@@ -1,4 +1,4 @@
-import { HttpException, Injectable } from "@nestjs/common";
+import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { CreateUserPointDto } from "./dto/create-user-point.dto";
@@ -24,7 +24,7 @@ export class UserPointService {
     if (user) {
       throw new HttpException(
         `Point ${point_name} Already Issued on this User`,
-        401,
+        HttpStatus.BAD_REQUEST
       );
     }
     const created = await this.userPointRepository.save({
