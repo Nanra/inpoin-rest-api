@@ -18,6 +18,9 @@ export class UserPointService {
   async create(payload: CreateUserPointDto): Promise<UserPoint> {
     const { username, phone_number, point_name, point_amount } = payload;
     const user = await this.findOne(username, point_name);
+    console.log(`Payload Create Point: ${payload.point_amount}`);
+    console.log(`Payload Create Point: ${point_amount}`);
+    
     if (user) {
       throw new HttpException(
         `Point ${point_name} Already Issued on this User`,
@@ -28,9 +31,20 @@ export class UserPointService {
       username,
       phone_number,
       point_name,
-      point_amount
+      point_amount,
+      paired: false
     });
+
+    console.log(`Data Created Point: ${created}`);
+
+
     return created;
+  }
+
+  async pairing(username: string, phone_number: string, point_name: string) {
+
+
+
   }
 
   //find user by username

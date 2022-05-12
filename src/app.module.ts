@@ -13,6 +13,7 @@ import { EmailModule } from './email/email.module';
 import { FabricGatewayModule } from './fabric-gateway/fabric-gateway.module';
 import { ExchangeTransaction } from './token/echange-transaction.entity';
 import { UserPoint } from './conventional-point/user-point.entity';
+import { UserPointModule } from './conventional-point/user-point.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { UserPoint } from './conventional-point/user-point.entity';
     TokenModule,
     OtpModule,
     EmailModule,
+    UserPointModule
   ],
   controllers: [AppController],
   providers: [AppService],
