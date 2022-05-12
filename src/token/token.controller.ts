@@ -10,40 +10,113 @@ import {
 import { TokenService } from './token.service';
 import { ExchangeRateQueryDto } from './dto/exchange-rate-query.dto';
 import { JwtOtpGuard } from 'src/auth/jwt-otp.guard';
+import { ApiProperty, ApiOkResponse, ApiUnauthorizedResponse, ApiForbiddenResponse } from '@nestjs/swagger';
 
 class TokenBalanceQuery {
   tokenId: string;
 }
 class CreateTokenDto {
+  @ApiProperty({
+    type: String,
+    description: "The generated token Id"
+  })
   tokenId: string;
+  @ApiProperty({
+    type: String,
+    description: "The desired token name"
+  })
   tokenName: string;
 }
 class MintTokenDto {
+  @ApiProperty({
+    type: String,
+    description: "The minter account"
+  })
   account: string;
+  @ApiProperty({
+    type: String,
+    description: "The minted token Id"
+  })
   tokenId: string;
+  @ApiProperty({
+    type: String,
+    description: "The desired minting amount"
+  })
   amount: string;
 }
 class TransferTokenDto {
+  @ApiProperty({
+    type: String,
+    description: "The recipient username"
+  })
   recipient: string;
+  @ApiProperty({
+    type: String,
+    description: "The recipient organization"
+  })
   recipientOrganization: string;
+  @ApiProperty({
+    type: String,
+    description: "The token Id"
+  })
   id: string;
+  @ApiProperty({
+    type: String,
+    description: "The desired token amount"
+  })
   amount: string;
 }
 class TokenExchangeDto {
+  @ApiProperty({
+    type: String,
+    description: "The desired token Id to be received"
+  })
   toTokenId: string;
+  @ApiProperty({
+    type: String,
+    description: "The desired token Id to be exchanged"
+  })
   fromTokenId: string;
+  @ApiProperty({
+    type: String,
+    description: "The desired token ammount to be exchanged"
+  })
   amount: string
 }
 class CreateLpDto {
+  @ApiProperty({
+    type: String,
+    description: "The desired token Id to be added"
+  })
   tokenId: string;
+  @ApiProperty({
+    type: String,
+    description: "The desired non-native token amount to be added"
+  })
   tokenSupply: string;
+  @ApiProperty({
+    type: String,
+    description: "The desired native token amount to be added"
+  })
   tokenPlatformSupply: string;
+  @ApiProperty({
+    type: String,
+    description: "The exchange rate of non-native token to the native token"
+  })
   exchangeRate: string
 }
 class SetPlatformFeeDto {
+  @ApiProperty({
+    type: String,
+    description: "The desired platform token amount for transaction fee"
+  })  
   platformFee: string;
 }
 class SetPlatformTokenIdDto {
+  @ApiProperty({
+    type: String,
+    description: "The desired platform token Id"
+  })
   tokenId: string;
 }
 
@@ -53,6 +126,8 @@ export class TokenController {
 
   @UseGuards(JwtOtpGuard)
   @Get('user')
+  @ApiOkResponse({ description: "The resource has been succesfully returned"})
+  @ApiForbiddenResponse({ description: "Forbidden"})
   getTokenList(
     @Req() { user: { username, organization } },
     tokenId: string,
@@ -78,12 +153,16 @@ export class TokenController {
   // }
 
   @Get('exchange/summary')
+  @ApiOkResponse({ description: "The resource has been succesfully returned"})
+  @ApiForbiddenResponse({ description: "Forbidden"})
   getExchangeSummary(@Query() query: ExchangeRateQueryDto) {
     return this.tokenService.getExchange(query);
   }
 
   @UseGuards(JwtOtpGuard)
   @Get('balance/token')
+  @ApiOkResponse({ description: "The resource has been succesfully returned"})
+  @ApiForbiddenResponse({ description: "Forbidden"})
   getTokenBalance(
     @Req() { user: { username, organization } },
     @Query() query: TokenBalanceQuery,
@@ -98,6 +177,8 @@ export class TokenController {
 
   @UseGuards(JwtOtpGuard)
   @Post('create')
+  @ApiOkResponse({ description: "Token has been created"})
+  @ApiUnauthorizedResponse({ description: "Token name has been used"})
   createToken(
     @Req() { user: { username, organization } },
     @Body() body: CreateTokenDto,
@@ -108,6 +189,8 @@ export class TokenController {
 
   @UseGuards(JwtOtpGuard)
   @Post('mint')
+  @ApiOkResponse({ description: "Token has been minted"})
+  @ApiUnauthorizedResponse({ description: "Invalid"})
   async mintToken(
     @Req() { user: { username, organization } },
     @Body() body: MintTokenDto,
@@ -128,6 +211,8 @@ export class TokenController {
 
   @UseGuards(JwtOtpGuard)
   @Post('setplatformfee')
+  @ApiOkResponse({ description: "Successful"})
+  @ApiUnauthorizedResponse({ description: "Invalid"})
   async setPlatformFeeAmount (
     @Req() { user: { username, organization } },
     @Body() body: SetPlatformFeeDto,
@@ -142,6 +227,8 @@ export class TokenController {
 
   @UseGuards(JwtOtpGuard)
   @Post('setplatformtoken')
+  @ApiOkResponse({ description: "Successful"})
+  @ApiUnauthorizedResponse({ description: "Invalid"})
   async setPlatformTokenId (
     @Req() { user: { username, organization } },
     @Body() body: SetPlatformTokenIdDto,
@@ -156,6 +243,8 @@ export class TokenController {
 
   @UseGuards(JwtOtpGuard)
   @Post('transfer')
+  @ApiOkResponse({ description: "Successful"})
+  @ApiUnauthorizedResponse({ description: "Insufficient token amount"})
   async transferToken(
     @Req() { user: { username, organization } },
     @Body() body: TransferTokenDto,
@@ -173,6 +262,8 @@ export class TokenController {
   }
   @UseGuards(JwtOtpGuard)
   @Post('exchange')
+  @ApiOkResponse({ description: "Successful"})
+  @ApiUnauthorizedResponse({ description: "Insufficient token amount"})
   newExchangeTransaction(
     @Req() {user:{ username, organization} },
     @Body() body: TokenExchangeDto,
@@ -188,6 +279,8 @@ export class TokenController {
 
   @UseGuards(JwtOtpGuard)
   @Post('createLP')
+  @ApiOkResponse({ description: "Successful"})
+  @ApiUnauthorizedResponse({ description: "Insufficient token amount"})
   async createLp(
     @Req() { user: { username, organization } },
     @Body() body: CreateLpDto,
@@ -205,6 +298,8 @@ export class TokenController {
 
   @UseGuards(JwtOtpGuard)
   @Get('lp')
+  @ApiOkResponse({ description: "The resource has been succesfully returned"})
+  @ApiForbiddenResponse({ description: "Forbidden"})
   async getLpByTokenId(
     @Req() { user: { username, organization } },
     @Query() { tokenId },
@@ -214,6 +309,8 @@ export class TokenController {
 
   @UseGuards(JwtOtpGuard)
   @Get('transaction-history')
+  @ApiOkResponse({ description: "The resource has been succesfully returned"})
+  @ApiForbiddenResponse({ description: "Forbidden"})
   async getTransactionHistory(
     @Req() { user: { username } },
     @Query() { limit },
