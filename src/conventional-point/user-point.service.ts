@@ -18,7 +18,6 @@ export class UserPointService {
   async create(payload: CreateUserPointDto): Promise<UserPoint> {
     const { username, phone_number, point_name, point_amount } = payload;
     const user = await this.findOne(username, point_name);
-    console.log(`Payload Create Point: ${payload.point_amount}`);
     console.log(`Payload Create Point: ${point_amount}`);
     
     if (user) {
@@ -43,8 +42,36 @@ export class UserPointService {
 
   async pairing(username: string, phone_number: string, point_name: string) {
 
+    const point = await this.getUnpairedPoint(username, phone_number, point_name);
+
+    if (point == null) {
+      throw new HttpException('Failed to pairing point, invalid username, phone number or point name', HttpStatus.BAD_REQUEST);
+    }
+
+    point.paired = true
+    point.paired_at =  new Date().toISOString();
+
+    this.userPointRepository.save(point);
+
+    return point;
+
+  }
 
 
+  async getPointBalance(username: string) {
+    const result = this.userPointRepository.find({
+      where: { username, paired: true },
+    });
+
+    return result;
+  }
+
+  async getUnpairedPoint(username: string, phone_number: string, point_name: string) {
+    const result = this.userPointRepository.findOne({
+      where: { username, phone_number, point_name, paired: false },
+    });
+
+    return result;
   }
 
   //find user by username
