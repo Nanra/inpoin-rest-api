@@ -14,6 +14,8 @@ import { FabricGatewayModule } from './fabric-gateway/fabric-gateway.module';
 import { ExchangeTransaction } from './token/echange-transaction.entity';
 import { UserPoint } from './conventional-point/user-point.entity';
 import { UserPointModule } from './conventional-point/user-point.module';
+import { VoucherModule } from './voucher/voucher.module';
+import { Voucher } from './voucher/voucher.entity';
 
 @Module({
   imports: [
@@ -25,7 +27,7 @@ import { UserPointModule } from './conventional-point/user-point.module';
       username: 'inpoinudev',
       password: 'inpoinsecret',
       database: 'inpoin_dev',
-      entities: [User, Otp, ExchangeTransaction, UserPoint],
+      entities: [User, Otp, ExchangeTransaction, UserPoint, Voucher],
       synchronize: true,
     }),
     FabricGatewayModule,
@@ -34,7 +36,8 @@ import { UserPointModule } from './conventional-point/user-point.module';
     TokenModule,
     OtpModule,
     EmailModule,
-    UserPointModule
+    UserPointModule,
+    VoucherModule
   ],
   controllers: [AppController],
   providers: [AppService],

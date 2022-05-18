@@ -19,7 +19,7 @@ export class Voucher {
   code: string;
 
   @Column()
-  issuer: string;
+  provider: string;
 
   @Column()
   point_price: number;
