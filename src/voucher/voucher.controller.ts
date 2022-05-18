@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from "@nestjs/common";
+import { Body, Controller, Get, Post, Query } from "@nestjs/common";
 import { CreateVoucherDto } from "./dto/create-voucher.dto";
 import { VoucherService } from "./voucher.service";
 
@@ -17,6 +17,11 @@ export class VoucherController{
     @Get()
     async getVouchers() {
         return this.voucherService.getVouchers();
+    }
+
+    @Get('detail')
+    async getVoucherDetail(@Query() {idVoucher}) {
+        return this.voucherService.findById(idVoucher);
     }
 
 }

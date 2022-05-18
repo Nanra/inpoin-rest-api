@@ -12,7 +12,6 @@ export class VoucherService{
         private voucherRepository: Repository<Voucher>,
       ) {}
 
-
       async create(payload: CreateVoucherDto): Promise<Voucher> {
         const { name, description, thumbnail_url, code, provider, point_price, expired_at } = payload;
         const user = await this.findOne(name, code);
