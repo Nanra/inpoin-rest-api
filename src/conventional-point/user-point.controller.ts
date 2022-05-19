@@ -1,4 +1,5 @@
-import { Body, Controller, Get, Post, Query } from "@nestjs/common";
+import { Body, Controller, Get, Post, Query, Req, UseGuards } from "@nestjs/common";
+import { JwtOtpGuard } from "src/auth/jwt-otp.guard";
 import { CreateUserPointDto } from "./dto/create-user-point.dto";
 import { UserPointService } from "./user-point.service";
 
@@ -17,18 +18,22 @@ export class UserPointController {
     ) {}
 
 
+    @UseGuards(JwtOtpGuard)
     @Post('create')
     async createUserPoint(@Body() payload: CreateUserPointDto) {
         return this.userPointService.create(payload);
     }
 
+    @UseGuards(JwtOtpGuard)
     @Post('pair')
     async pairUserPoint(@Body() payload: PairPointDto) {
         return this.userPointService.pairing(payload.username, payload.phone_number, payload.point_name);
     }
 
+    @UseGuards(JwtOtpGuard)
     @Get('balance')
-    async getUserPointBalance(@Query() {username}) {
+    async getUserPointBalance(
+        @Req() { user: { username } }) {
         return this.userPointService.getPointBalance(username);
     }
 

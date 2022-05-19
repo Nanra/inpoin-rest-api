@@ -23,10 +23,10 @@ export class AuthService {
       // Register, and Enroll user to Certificate Authority
       // Enrollment identity is saved to filesystem Wallet
       // TODO: Refactor wallet interaction to own module
-      await this.caService.registerAndEnrollUser({
-        username,
-        userOrg: organization,
-      });
+      // await this.caService.registerAndEnrollUser({
+      //   username,
+      //   userOrg: organization,
+      // });
 
       // Hash password
       // Save username and hashed password to DB
@@ -60,6 +60,8 @@ export class AuthService {
   ): Promise<any> {
     const user = await this.usersService.findOne(username, organization);
     const isMatch = await bcrypt.compare(password, user.password);
+    console.log("Validate User IsPassword Match: " + isMatch);
+    
     if (isMatch) {
       return user;
     }
@@ -68,6 +70,9 @@ export class AuthService {
   async login(payload: LoginDto): Promise<any> {
     const { username, organization, password } = payload;
     const user = await this.validateUser(username, organization, password);
+
+    console.log("Payload User: " + user);
+    
 
     if (user) {
       const jwtPayload = {
@@ -79,7 +84,7 @@ export class AuthService {
         access_token: this.jwtService.sign(jwtPayload),
       };
     }
-    throw new HttpException('invalid login', 401);
+    throw new HttpException('Invalid Username or Password', 401);
   }
 
   async enrollAdmin(payload: EnrollAdminDto): Promise<any> {
