@@ -19,6 +19,9 @@ export class Voucher {
   code: string;
 
   @Column()
+  type: string;
+
+  @Column()
   provider: string;
 
   @Column()
