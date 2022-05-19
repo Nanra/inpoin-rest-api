@@ -7,6 +7,7 @@ import { Repository } from 'typeorm';
 import { Otp } from './otp.entitiy';
 import { response } from 'express';
 import { EmailService } from 'src/email/email.service';
+import * as nodemailer from 'nodemailer';
 
 @Injectable()
 export class OtpService {
@@ -35,34 +36,32 @@ export class OtpService {
     };
     const created = await this.otpRepository.save(otpLog);
 
-    this.emailService.apiKey();
+    const mailConfig = await this.emailService.getConfig();
 
-    const apiInstance = await new SibApiV3Sdk.TransactionalEmailsApi();
 
-    const sendSmtpEmail = await new SibApiV3Sdk.SendSmtpEmail();
+    let info = {}
+    try {
+      var transporter = nodemailer.createTransport( {
+        service:  mailConfig.service,
+        auth: {
+          user: mailConfig.auth.user,
+          pass: mailConfig.auth.pass
+        }
+      });
+      var mailOpts = {
+        from: mailConfig.sender,
+        to: user.email,
+        subject: 'Inpoin OTP',
+        text : 'Please enter the OTP Code in the App to login',
+        html : `<h1>${otpCode}</h1>`
+      };
+      info = await transporter.sendMail(mailOpts)
+    } catch (err) {
+      console.log('error sending email through smtp')
+      console.log(err)
+    }
 
-    sendSmtpEmail.subject = 'OTP Verification';
-    sendSmtpEmail.htmlContent = otpCode;
-    sendSmtpEmail.sender = { name: 'MyInpoin', email: 'emilliokanz@gmail.com' };
-    sendSmtpEmail.to = [{ email: user.email, name: user.username }];
-    sendSmtpEmail.headers = { 'Some-Custom-Name': 'unique-id-1234' };
-    sendSmtpEmail.params = {
-      parameter: 'My param value',
-      subject: 'New Subject',
-    };
-
-    apiInstance.sendTransacEmail(sendSmtpEmail).then(
-      function (data) {
-        console.log(
-          'API called successfully. Returned data: ' + JSON.stringify(data),
-        );
-      },
-      function (error) {
-        console.error(error);
-      },
-    );
-
-    return { apiInstance, ...created, phone_number: user.phone_number };
+    return { ...created, phone_number: user.phone_number, info }
   }
 
   async validateOtp(user_id: number, otpCode: string) {
