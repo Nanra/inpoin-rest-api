@@ -28,7 +28,7 @@ import { Voucher } from './voucher/voucher.entity';
       password: 'inpoinsecret',
       database: 'inpoin_dev',
       entities: [User, Otp, ExchangeTransaction, UserPoint, Voucher],
-      synchronize: true,
+      synchronize: false,
     }),
     FabricGatewayModule,
     AuthModule,
