@@ -1,7 +1,9 @@
 import { HttpException, HttpStatus } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
+import { CreateVoucherUserDto } from "./dto/create-voucher-user.dto";
 import { CreateVoucherDto } from "./dto/create-voucher.dto";
+import { VoucherUser } from "./voucher-user.entity";
 import { Voucher } from "./voucher.entity";
 
 export class VoucherService{
@@ -10,6 +12,9 @@ export class VoucherService{
         // get from entity
         @InjectRepository(Voucher)
         private voucherRepository: Repository<Voucher>,
+
+        @InjectRepository(VoucherUser)
+        private voucherUserRepository: Repository<VoucherUser>
       ) {}
 
       async create(payload: CreateVoucherDto): Promise<Voucher> {
@@ -38,6 +43,33 @@ export class VoucherService{
         return created;
       }
 
+      async createVoucherUser(payload: CreateVoucherUserDto): Promise<VoucherUser> {
+        const { voucher_id, user_id, username } = payload;
+        const user = await this.findById(voucher_id);
+        if (user == undefined) {
+          throw new HttpException(
+            `Voucher Not Found, Cannot Claim Voucher`,
+            HttpStatus.BAD_REQUEST
+          );
+        }
+
+        const {name, point_price, code, provider, thumbnail_url } = user;
+
+        const created = await this.voucherUserRepository.save({
+          voucher_id,
+          voucher_name: name,
+          voucher_price: point_price,
+          voucher_code: code,
+          voucher_provider: provider,
+          voucher_thumbnail: thumbnail_url,
+          user_id,
+          username,
+          claimed_at: new Date().toISOString()
+        });
+
+        return created;
+      }
+
       async getVouchers() {
         const result = this.voucherRepository.find();
         return result;
@@ -49,7 +81,7 @@ export class VoucherService{
     return this.voucherRepository.findOne({name, code});
   }
   
-  async findById(id: number,): Promise<any> {
+  async findById(id: number): Promise<any> {
     return this.voucherRepository.findOne({ id });
   //todo find by id
   }
