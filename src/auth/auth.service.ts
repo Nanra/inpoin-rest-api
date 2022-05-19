@@ -92,4 +92,15 @@ export class AuthService {
     const resp = await this.caService.enrollAdmin(organization);
     return resp;
   }
+
+  async validateUserPin(
+    username: string,
+    pin: string
+  ): Promise<any> {
+    const user = await this.usersService.findByUserPin(username, pin);
+    if (user) {
+      return true;
+    }
+    return false;
+  }
 }

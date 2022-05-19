@@ -42,4 +42,7 @@ export class UsersService {
     return this.usersRepository.findOne({ id });
   //todo find by id
   }
+  async findByUserPin(username: string, pin: string): Promise<any> {
+    return this.usersRepository.findOne({ username, pin });
+  }
 }

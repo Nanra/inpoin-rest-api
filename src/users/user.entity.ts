@@ -20,5 +20,8 @@ export class User {
   @Column({ nullable: true })
   phone_number: string;
 
+  @Column()
+  pin: string;
+
   
 }
