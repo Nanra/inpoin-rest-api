@@ -40,4 +40,16 @@ export class VoucherController{
         return this.voucherService.findById(idVoucher);
     }
 
+    @UseGuards(JwtOtpGuard)
+    @Get('user-claim')
+    async getUserVouchers(@Req() { user: { username } }) {
+        return this.voucherService.getUserVouchers(username);
+    }
+
+    @UseGuards(JwtOtpGuard)
+    @Get('user-claim/detail')
+    async getUserVoucherDetail(@Query() {idUserVoucher}) {
+        return this.voucherService.getUserVoucherDetail(idUserVoucher);
+    }
+
 }

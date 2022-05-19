@@ -75,6 +75,18 @@ export class VoucherService{
         return result;
       }
 
+      async getUserVouchers(username: string) {
+        const result = this.voucherUserRepository.find({
+          where: { username},
+        });
+        return result;
+      }
+
+      async getUserVoucherDetail(id: number) {
+        const result = this.voucherUserRepository.findOne({id});
+        return result;
+      }
+
 
       //find user by username
   async findOne(name: string, code: string): Promise<any> {
