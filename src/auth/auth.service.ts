@@ -23,10 +23,10 @@ export class AuthService {
       // Register, and Enroll user to Certificate Authority
       // Enrollment identity is saved to filesystem Wallet
       // TODO: Refactor wallet interaction to own module
-      // await this.caService.registerAndEnrollUser({
-      //   username,
-      //   userOrg: organization,
-      // });
+      await this.caService.registerAndEnrollUser({
+        username,
+        userOrg: organization,
+      });
 
       // Hash password
       // Save username and hashed password to DB
