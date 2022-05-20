@@ -20,25 +20,38 @@ export class UserPointService {
       ) {}
 
       //creating a new user, storing user data, finding exixting user
-  async create(payload: CreateUserPointDto): Promise<UserPoint> {
-    const { username, phone_number, point_id, point_name, point_amount } = payload;
-    const user = await this.findOne(username, point_id);
-    console.log(`Payload Create Point: ${point_amount}`);
+  async createUserPoint(payload: CreateUserPointDto): Promise<UserPoint> {
+    const { username, phone_number, point_name } = payload;
+
+    const existingPoint = await this.findPointByName(point_name);  
     
-    if (user) {
+    if (existingPoint == undefined) {
       throw new HttpException(
-        `Point ${point_name} Already Issued on this User`,
+        `Point ${point_name} Not Found`,
         HttpStatus.BAD_REQUEST
       );
     }
+
+    console.log("Existing Poin: " + existingPoint.id);
+
+    const issued = await this.findByPoint(existingPoint.id);
+
+    if (issued) {
+      throw new HttpException(
+        `Point ${point_name} Already Issued to this User`,
+        HttpStatus.BAD_REQUEST
+      );
+    }
+
     const created = await this.userPointRepository.save({
       username,
       phone_number,
-      point_name,
-      point_amount,
-      paired: false
+      point_id: existingPoint.id,
+      token_id: existingPoint.token_id,
+      paired: false,
+      issued_at:  new Date().toISOString()
     });
-    
+
     return created;
   }
 
@@ -101,12 +114,14 @@ export class UserPointService {
   }
 
   //find user by username
-  async findOne(username: string, point_id: string): Promise<any> {
+  async findOne(username: string, point_id: number): Promise<any> {
     return this.userPointRepository.findOne({username, point_id});
   }
-  async findByPoint(point_id: string): Promise<any> {
+
+  async findByPoint(point_id: number): Promise<any> {
     return this.userPointRepository.findOne({ point_id });
   }
+
   async findById(id: number,): Promise<any> {
     return this.userPointRepository.findOne({ id });
   //todo find by id
@@ -114,6 +129,11 @@ export class UserPointService {
 
   async findPointByTokenId(token_id: number,): Promise<any> {
     return this.pointRepository.findOne({ token_id });
+  //todo find by id
+  }
+
+  async findPointByName(point_name: string,): Promise<any> {
+    return this.pointRepository.findOne({ point_name });
   //todo find by id
   }
 

@@ -20,8 +20,14 @@ export class UserPointController {
 
     @UseGuards(JwtOtpGuard)
     @Post('create')
-    async createUserPoint(@Body() payload: CreatePointDto) {
+    async createPoint(@Body() payload: CreatePointDto) {
         return this.userPointService.createPoint(payload);
+    }
+
+    @UseGuards(JwtOtpGuard)
+    @Post('issue')
+    async createUserPoint(@Body() payload: CreateUserPointDto) {
+        return this.userPointService.createUserPoint(payload);
     }
 
     @UseGuards(JwtOtpGuard)
