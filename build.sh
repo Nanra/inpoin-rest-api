@@ -2,8 +2,8 @@
 docker buildx build \
   --platform linux/amd64 \
   --tag kevinjanada/inpoin-rest-api \
-  --label rest-api-inpoin-demo \
+  --label inpoin-rest-api \
   --push \
   .
 
-docker image prune --force --filter='label=rest-api-inpoin-demo'
+docker image prune --force --filter='label=inpoin-rest-api'
