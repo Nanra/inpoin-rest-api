@@ -30,7 +30,7 @@ import { Point } from './conventional-point/point.entity';
       password: 'inpoinsecret',
       database: 'inpoin_dev',
       entities: [User, Otp, ExchangeTransaction, Point, UserPoint, Voucher, VoucherUser],
-      synchronize: true,
+      synchronize: false,
     }),
     FabricGatewayModule,
     AuthModule,

@@ -30,6 +30,9 @@ export class Voucher {
   @Column()
   point_price: number;
 
+  @Column({nullable: true})
+  expired: Boolean;
+
   @Column({ type: 'timestamp', nullable: true })
   expired_at: Date | string;
 

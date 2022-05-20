@@ -38,6 +38,7 @@ export class VoucherService{
           provider_id,
           point_price,
           expired_at,
+          expired: false,
           created_at: new Date().toISOString()
         });
 
