@@ -18,7 +18,7 @@ export class VoucherService{
       ) {}
 
       async create(payload: CreateVoucherDto): Promise<Voucher> {
-        const { name, description, thumbnail_url, code, type, provider, point_price, expired_at } = payload;
+        const { name, description, thumbnail_url, code, type, provider, provider_id, point_price, expired_at } = payload;
         const user = await this.findOne(name, code);
         console.log(`Payload Create Voucher Name: ${name}`);
         
@@ -35,6 +35,7 @@ export class VoucherService{
           code,
           type,
           provider,
+          provider_id,
           point_price,
           expired_at,
           created_at: new Date().toISOString()

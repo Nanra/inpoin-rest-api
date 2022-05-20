@@ -25,6 +25,9 @@ export class Voucher {
   provider: string;
 
   @Column()
+  provider_id: string;
+
+  @Column()
   point_price: number;
 
   @Column({ type: 'timestamp', nullable: true })
