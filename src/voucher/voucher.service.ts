@@ -54,18 +54,12 @@ export class VoucherService{
           );
         }
 
-        const {name, point_price, code, provider, thumbnail_url } = user;
-
         const created = await this.voucherUserRepository.save({
           voucher_id,
-          voucher_name: name,
-          voucher_price: point_price,
-          voucher_code: code,
-          voucher_provider: provider,
-          voucher_thumbnail: thumbnail_url,
           user_id,
           username,
-          claimed_at: new Date().toISOString()
+          claimed_at: new Date().toISOString(),
+          redeemed: false
         });
 
         return created;

@@ -12,21 +12,6 @@ export class VoucherUser {
     voucher_id: number;
 
     @Column()
-    voucher_name: string;
-
-    @Column()
-    voucher_price: string;
-
-    @Column()
-    voucher_code: string;
-
-    @Column()
-    voucher_provider: string;
-
-    @Column()
-    voucher_thumbnail: string;
-
-    @Column()
     user_id: number;
 
     @Column()
@@ -40,11 +25,5 @@ export class VoucherUser {
     
     @Column({ type: 'timestamp', nullable: true })
     redeemed_at: Date | string;
-
-    @Column({nullable: true})
-    expired: Boolean;
-
-    @Column({ type: 'timestamp', nullable: true })
-    expired_at: Date | string;
 
 }
