@@ -28,6 +28,7 @@ export class UsersService {
       organization,
       email,
       phone_number,
+      pin: "1111"
     });
     return created;
   }

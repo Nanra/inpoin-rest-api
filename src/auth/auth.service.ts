@@ -36,7 +36,7 @@ export class AuthService {
         password: hash,
         organization,
         email,
-        phone_number,
+        phone_number
       });
       // return jwt
       const jwtPayload = {
