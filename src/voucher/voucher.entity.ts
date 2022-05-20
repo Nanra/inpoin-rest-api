@@ -13,6 +13,9 @@ export class Voucher {
   description: string;
 
   @Column()
+  terms_of_use: string;
+
+  @Column()
   thumbnail_url: string;
 
   @Column()
