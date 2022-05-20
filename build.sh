@@ -1,7 +1,7 @@
 #!/bin/bash
 docker buildx build \
   --platform linux/amd64 \
-  --tag nanrasukedy/rest-api-inpoin-demo \
+  --tag kevinjanada/inpoin-rest-api \
   --label rest-api-inpoin-demo \
   --push \
   .
