@@ -1,11 +1,15 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { InjectConnection, InjectRepository } from "@nestjs/typeorm";
+import { FabricGatewayService } from "src/fabric-gateway/fabric-gateway.service";
+import { Connection, Repository } from "typeorm";
 import { CreatePointDto } from "./dto/create-point.dto";
 import { CreateUserPointDto } from "./dto/create-user-point.dto";
+import { UserPointsDto } from "./dto/list-user-point.dto";
 import { Point } from "./point.entity";
 import { UserPoint } from "./user-point.entity";
 
+const CHANNEL_NAME = 'inpoinchannel';
+const CHAINCODE_ID = 'lp';
 
 @Injectable()
 export class UserPointService {
@@ -16,7 +20,11 @@ export class UserPointService {
         private userPointRepository: Repository<UserPoint>,
 
         @InjectRepository(Point)
-        private pointRepository: Repository<Point>
+        private pointRepository: Repository<Point>,
+
+        @InjectConnection() private readonly connection: Connection,
+
+        private fabricGatewayService: FabricGatewayService,
       ) {}
 
       //creating a new user, storing user data, finding exixting user
@@ -80,11 +88,15 @@ export class UserPointService {
     return created;
   }
 
-  async pairing(username: string, phone_number: string, point_name: string) {
+  async pairing(username: string, phone_number: string, point_id: number) {
 
-    const point = await this.getUnpairedPoint(username, phone_number, point_name);
+    const point = await this.getUnpairedPoint(username, phone_number, point_id);
 
-    if (point == null) {
+    console.log("Point Exist: " + point.username);
+    console.log(`Username: ${username}, Phone Number: ${phone_number}, Point ID: ${point_id} `);
+    
+
+    if (point == undefined) {
       throw new HttpException('Failed to pairing point, invalid username, phone number or point name', HttpStatus.BAD_REQUEST);
     }
 
@@ -98,19 +110,60 @@ export class UserPointService {
   }
 
   async getPointBalance(username: string) {
-    const result = this.userPointRepository.find({
-      where: { username, paired: true },
+
+    let resultSet: UserPointsDto[] = [];
+
+    const allResult = await this.connection.query('SELECT UP.ID, UP.USERNAME, UP.POINT_ID, UP.TOKEN_ID, UP.PAIRED, UP.PAIRED_AT, UP.ISSUED_AT, P.POINT_NAME, P.POINT_LOGO_URL, P.EXCHANGE_RATE FROM USER_POINT UP LEFT JOIN POINT P ON UP.POINT_ID = P.ID;');
+
+
+    for (let index = 0; index < allResult.length; index++) {
+      const element = allResult[index];
+
+      resultSet.push(element);
+      console.log(`Usernamer: ${element.username} , Token ID: ${element.token_id.toString()}`);
+      
+      resultSet[index].amount = await this.getClientAccountBalance(element.username, 'Org1', element.token_id.toString());
+      
+    }
+
+    console.log("Final Resultset: " + resultSet[0].token_id);
+    
+    return resultSet;
+  }
+
+  async getUnpairedPoint(username: string, phone_number: string, point_id: number) {
+    const result = this.userPointRepository.findOne({
+      where: { username, phone_number, point_id, paired: false }
     });
 
     return result;
   }
 
-  async getUnpairedPoint(username: string, phone_number: string, point_name: string) {
-    const result = this.userPointRepository.findOne({
-      where: { username, phone_number, point_name, paired: false },
-    });
 
-    return result;
+  // Fabric Method
+  async getClientAccountBalance(
+    username: string,
+    organization: string,
+    tokenId: string,
+  ) {
+    const gateway = await this.fabricGatewayService.initGateway(
+      username,
+      organization,
+    );
+    const network = await gateway.getNetwork(CHANNEL_NAME);
+    const contract = network.getContract(CHAINCODE_ID);
+
+    const args = [tokenId];
+    const transactionName = 'ClientAccountBalance';
+
+    const submitResult = await contract.submitTransaction(
+      transactionName,
+      ...args,
+    );
+
+    const result = submitResult.toString('utf-8');
+
+    return Number(result);
   }
 
   //find user by username

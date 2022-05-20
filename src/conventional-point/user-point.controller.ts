@@ -7,7 +7,7 @@ import { UserPointService } from "./user-point.service";
 
 class PairPointDto {
     phone_number: string;
-    point_name: string;
+    point_id: number;
 }
 
 @Controller('point')
@@ -35,7 +35,7 @@ export class UserPointController {
     async pairUserPoint(
         @Req() { user: { username } },
         @Body() payload: PairPointDto) {
-        return this.userPointService.pairing(username, payload.phone_number, payload.point_name);
+        return this.userPointService.pairing(username, payload.phone_number, payload.point_id);
     }
 
     @UseGuards(JwtOtpGuard)
