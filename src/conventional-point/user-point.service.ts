@@ -113,7 +113,9 @@ export class UserPointService {
 
     let resultSet: UserPointsDto[] = [];
 
-    const queryResult = await this.connection.query('SELECT UP.ID, UP.USERNAME, UP.POINT_ID, UP.TOKEN_ID, UP.PAIRED, UP.PAIRED_AT, UP.ISSUED_AT, P.POINT_NAME, P.POINT_LOGO_URL, P.EXCHANGE_RATE FROM USER_POINT UP LEFT JOIN POINT P ON UP.POINT_ID = P.ID;');
+    const queryResult = await this.connection.query(`select up.id, up.username, up.point_id, up.token_id, up.paired, up.paired_at, up.issued_at, p.point_name, p.point_logo_url, p.exchange_rate from user_point up left join point p on up.point_id = p.id where up.username = '${username}' order by up.token_id desc`);
+    console.log(`Query: ${queryResult}`);
+    
 
 
     for (let index = 0; index < queryResult.length; index++) {
@@ -121,7 +123,7 @@ export class UserPointService {
 
       resultSet.push(element);
       // console.log(`Usernamer: ${element.username} , Token ID: ${element.token_id.toString()}`);
-      resultSet[index].amount = await this.getClientAccountBalance(element.username, 'Org1', element.token_id.toString());
+      // resultSet[index].amount = await this.getClientAccountBalance(element.username, 'Org1', element.token_id.toString());
       
     }
 
