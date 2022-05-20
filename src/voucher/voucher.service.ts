@@ -79,8 +79,9 @@ export class VoucherService{
       }
 
       async getUserVoucherDetail(id: number) {
-        const result = this.voucherUserRepository.findOne({id});
-        return result;
+        const baseQuery = `select * from voucher_user vu left join voucher v on vu.voucher_id = v.id where vu.id = '${id}';`
+        const queryResult = await this.connection.query(baseQuery);
+        return queryResult;
       }
 
 
