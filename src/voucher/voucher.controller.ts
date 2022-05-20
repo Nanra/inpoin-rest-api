@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Post, Query, Req, UseGuards } from "@nestjs/common";
 import { JwtOtpGuard } from "src/auth/jwt-otp.guard";
+import { ClaimVoucherDto } from "./dto/claim-voucher.dto";
 import { CreateVoucherUserDto } from "./dto/create-voucher-user.dto";
 import { CreateVoucherDto } from "./dto/create-voucher.dto";
 import { VoucherService } from "./voucher.service";
@@ -19,13 +20,15 @@ export class VoucherController{
 
     @UseGuards(JwtOtpGuard)
     @Post('claim')
-    async claimVoucher(@Req() { user: { userId, username } },
-    @Query() {voucherId}) {
-        const payload = new CreateVoucherUserDto;
-        payload.user_id = userId;
-        payload.username = username;
-        payload.voucher_id = voucherId;
-        return this.voucherService.createVoucherUser(payload);
+    async claimVoucher(
+        @Req() { user: { userId, username } },
+        @Body() payload: ClaimVoucherDto) {
+        const payloadVoucherUser = new CreateVoucherUserDto;
+        payloadVoucherUser.user_id = userId;
+        payloadVoucherUser.username = username;
+        payloadVoucherUser.voucher_id = payload.voucher_id;
+        payloadVoucherUser.payment = payload.payment;
+        return this.voucherService.createVoucherUser(payloadVoucherUser);
     }
 
     @UseGuards(JwtOtpGuard)

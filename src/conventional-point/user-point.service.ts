@@ -42,11 +42,11 @@ export class UserPointService {
 
     console.log("Existing Poin: " + existingPoint.id);
 
-    const issued = await this.findByPoint(existingPoint.id);
+    const issued = await this.findOne(username, existingPoint.id);
 
     if (issued) {
       throw new HttpException(
-        `Point ${point_name} Already Issued to this User`,
+        `Point ${point_name} Already Issued to user ${username}`,
         HttpStatus.BAD_REQUEST
       );
     }
@@ -165,10 +165,6 @@ export class UserPointService {
   //find user by username
   async findOne(username: string, point_id: number): Promise<any> {
     return this.userPointRepository.findOne({username, point_id});
-  }
-
-  async findByPoint(point_id: number): Promise<any> {
-    return this.userPointRepository.findOne({ point_id });
   }
 
   async findById(id: number,): Promise<any> {
