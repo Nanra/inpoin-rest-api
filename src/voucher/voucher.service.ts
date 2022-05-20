@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { InjectConnection, InjectRepository } from "@nestjs/typeorm";
+import { Connection, Repository } from "typeorm";
 import { CreateVoucherUserDto } from "./dto/create-voucher-user.dto";
 import { CreateVoucherDto } from "./dto/create-voucher.dto";
 import { VoucherUser } from "./voucher-user.entity";
@@ -14,7 +14,9 @@ export class VoucherService{
         private voucherRepository: Repository<Voucher>,
 
         @InjectRepository(VoucherUser)
-        private voucherUserRepository: Repository<VoucherUser>
+        private voucherUserRepository: Repository<VoucherUser>,
+
+        @InjectConnection() private readonly connection: Connection,
       ) {}
 
       async create(payload: CreateVoucherDto): Promise<Voucher> {
@@ -72,10 +74,8 @@ export class VoucherService{
       }
 
       async getUserVouchers(username: string) {
-        const result = this.voucherUserRepository.find({
-          where: { username},
-        });
-        return result;
+        const queryResult = await this.connection.query(`SELECT * FROM VOUCHER_USER VU LEFT JOIN VOUCHER V ON VU.VOUCHER_ID = V.ID WHERE VU.USERNAME = ${username} ORDER BY V.EXPIRED_AT ASC;`);
+        return queryResult;
       }
 
       async getUserVoucherDetail(id: number) {
