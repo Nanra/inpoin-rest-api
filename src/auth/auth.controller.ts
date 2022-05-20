@@ -32,7 +32,7 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post('validate-pin')
+  @Post('pin/validate')
   @ApiOkResponse({ description: "User PIN Validated"})
   @ApiUnauthorizedResponse({ description: "Can Not Validate User PIN"})
   validateUserPin(

@@ -20,11 +20,11 @@ export class VoucherController{
     @UseGuards(JwtOtpGuard)
     @Post('claim')
     async claimVoucher(@Req() { user: { userId, username } },
-    @Query() {voucher_id}) {
+    @Query() {voucherId}) {
         const payload = new CreateVoucherUserDto;
         payload.user_id = userId;
         payload.username = username;
-        payload.voucher_id = voucher_id;
+        payload.voucher_id = voucherId;
         return this.voucherService.createVoucherUser(payload);
     }
 
