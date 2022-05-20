@@ -17,19 +17,20 @@ import { UserPointModule } from './conventional-point/user-point.module';
 import { VoucherModule } from './voucher/voucher.module';
 import { Voucher } from './voucher/voucher.entity';
 import { VoucherUser } from './voucher/voucher-user.entity';
+import { Point } from './conventional-point/point.entity';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: '157.230.39.222',
+      host: 'localhost',
       port: 5432,
-      username: 'inpoin',
-      password: 'inpoin123!@#',
-      database: 'inpoin_staging',
-      entities: [User, Otp, ExchangeTransaction, UserPoint, Voucher, VoucherUser],
-      synchronize: false,
+      username: 'inpoinudev',
+      password: 'inpoinsecret',
+      database: 'inpoin_dev',
+      entities: [User, Otp, ExchangeTransaction, Point, UserPoint, Voucher, VoucherUser],
+      synchronize: true,
     }),
     FabricGatewayModule,
     AuthModule,

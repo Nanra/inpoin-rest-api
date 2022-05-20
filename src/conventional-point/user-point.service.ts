@@ -16,8 +16,8 @@ export class UserPointService {
 
       //creating a new user, storing user data, finding exixting user
   async create(payload: CreateUserPointDto): Promise<UserPoint> {
-    const { username, phone_number, point_name, point_amount } = payload;
-    const user = await this.findOne(username, point_name);
+    const { username, phone_number, point_id, point_name, point_amount } = payload;
+    const user = await this.findOne(username, point_id);
     console.log(`Payload Create Point: ${point_amount}`);
     
     if (user) {
@@ -75,11 +75,11 @@ export class UserPointService {
   }
 
   //find user by username
-  async findOne(username: string, point_name: string): Promise<any> {
-    return this.userPointRepository.findOne({username, point_name});
+  async findOne(username: string, point_id: string): Promise<any> {
+    return this.userPointRepository.findOne({username, point_id});
   }
-  async findByPoint(point_name: string): Promise<any> {
-    return this.userPointRepository.findOne({ point_name });
+  async findByPoint(point_id: string): Promise<any> {
+    return this.userPointRepository.findOne({ point_id });
   }
   async findById(id: number,): Promise<any> {
     return this.userPointRepository.findOne({ id });

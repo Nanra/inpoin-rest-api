@@ -1,24 +1,27 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
-export class UserPoint {
+export class Point {
 
     @PrimaryGeneratedColumn()
     id: number;
 
   @Column()
-  username: string;
-
-  @Column()
-  phone_number: string;
-
-  @Column()
   point_id: string;
 
   @Column()
-  paired: Boolean;
+  point_name: string;
+
+  @Column()
+  point_logo_url: string;
+
+  @Column()
+  exchange_rate: number;
 
   @Column({ type: 'timestamp', nullable: true })
-  paired_at: Date | string;
+  created_at: Date | string;
+
+  @Column({ type: 'timestamp', nullable: true })
+  edited_at: Date | string;
 
 }
