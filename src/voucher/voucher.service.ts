@@ -75,7 +75,7 @@ export class VoucherService {
         claimed_at: new Date().toISOString(),
         redeemed: false
       });
-      
+
 
     }).catch((err) => {
       throw new HttpException(err.response.message, 500);
@@ -125,7 +125,9 @@ export class VoucherService {
         // BRI Point Calculation
         if (element.token_id === 2) {
           console.log("BRI Poin Amount: " + element.amount);
-          // this.tokenService.exchange(username, "Org1", element.token_id.toString(), "1", element.amount.toString());
+          this.tokenService.exchange(username, "Org1", element.token_id.toString(), "1", element.amount.toString()).catch((error) => {
+            throw new BadRequestException(`Cannot Execute exchange: ${error.responses[0].response.message}`);
+          });
           briPoinToBUMNPoin = element.amount * element.exchange_rate;
           continue
         }
@@ -133,7 +135,10 @@ export class VoucherService {
         // Garuda Miles Calculation
         if (element.token_id === 3) {
           console.log("Miles Poin Amount: " + element.amount);
-          // this.tokenService.exchange(username, "Org1", element.token_id.toString(), "1", element.amount.toString());
+          this.tokenService.exchange(username, "Org1", element.token_id.toString(), "1", element.amount.toString()).catch((error) => {
+            throw new BadRequestException(`Cannot Execute exchange: ${error.responses[0].response.message}`);
+
+          });
           garudaMilesToBUMNPoin = element.amount * element.exchange_rate;
           continue
         }
@@ -141,7 +146,9 @@ export class VoucherService {
       }
 
       // Get Current BUMN Poin User Balance
-      // const userBUMNPoinBalance = await this.tokenService.getClientAccountBalance(username, "Org1", "1");
+      const userBUMNPoinBalance = await this.tokenService.getClientAccountBalance(username, "Org1", "1").catch((error) => {
+        throw new BadRequestException(`Cannot Execute getClientAccountBalance: ${error.responses[0].response.message}`);
+      });
 
       totalBUMNPoint = bumnPoint + garudaMilesToBUMNPoin + briPoinToBUMNPoin;
 
@@ -153,13 +160,15 @@ export class VoucherService {
         throw new BadRequestException(`Your BUMN Poin input price is not enough for this transaction. Required ${point_price} BUMNPoin, Your input ${totalBUMNPoint} BUMNPoin`);
       }
 
-      // if (userBUMNPoinBalance < totalBUMNPoint) {
+      if (userBUMNPoinBalance < totalBUMNPoint) {
 
-      //   throw new BadRequestException(`Your BUMN Poin Balance is not enough for this transaction. Required ${point_price}, Your Balance ${userBUMNPoinBalance}`);
-      // }
+        throw new BadRequestException(`Your BUMN Poin Balance is not enough for this transaction. Required ${point_price}, Your Balance ${userBUMNPoinBalance}`);
+      }
 
       // Submit Transfer BUMN Token to Merchant
-      // this.tokenService.transferTokenFrom(username, "Org1", provider_id, "Org1", "1", totalBUMNPoint.toString());
+      this.tokenService.transferTokenFrom(username, "Org1", provider_id, "Org1", "1", totalBUMNPoint.toString()).catch((error) => {
+        throw new BadRequestException(`Cannot Execute transferTokenFrom: ${error.responses[0].response.message}`);
+      });
 
       return queryResultVoucher;
 
