@@ -1,7 +1,9 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
+import { CreatePointDto } from "./dto/create-point.dto";
 import { CreateUserPointDto } from "./dto/create-user-point.dto";
+import { Point } from "./point.entity";
 import { UserPoint } from "./user-point.entity";
 
 
@@ -12,6 +14,9 @@ export class UserPointService {
         // get from entity
         @InjectRepository(UserPoint)
         private userPointRepository: Repository<UserPoint>,
+
+        @InjectRepository(Point)
+        private pointRepository: Repository<Point>
       ) {}
 
       //creating a new user, storing user data, finding exixting user
@@ -33,9 +38,31 @@ export class UserPointService {
       point_amount,
       paired: false
     });
+    
+    return created;
+  }
+
+  async createPoint(payload: CreatePointDto): Promise<Point> {
+    const { token_id, point_name, exchange_rate, point_logo_url} = payload;
+
+    const pointExist = await this.findPointByTokenId(token_id);
+    // console.log(`Payload Create Point: ${point_amount}`);
+    
+    if (pointExist) {
+      throw new HttpException(
+        `Point ${point_name} Already Issued`,
+        HttpStatus.BAD_REQUEST
+      );
+    }
+    const created = await this.pointRepository.save({
+      token_id,
+      point_name,
+      point_logo_url,
+      exchange_rate,
+      created_at: new Date().toISOString()
+    });
 
     console.log(`Data Created Point: ${created}`);
-
 
     return created;
   }
@@ -56,7 +83,6 @@ export class UserPointService {
     return point;
 
   }
-
 
   async getPointBalance(username: string) {
     const result = this.userPointRepository.find({
@@ -83,6 +109,11 @@ export class UserPointService {
   }
   async findById(id: number,): Promise<any> {
     return this.userPointRepository.findOne({ id });
+  //todo find by id
+  }
+
+  async findPointByTokenId(token_id: number,): Promise<any> {
+    return this.pointRepository.findOne({ token_id });
   //todo find by id
   }
 

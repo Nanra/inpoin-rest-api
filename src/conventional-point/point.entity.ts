@@ -7,10 +7,10 @@ export class Point {
     id: number;
 
   @Column()
-  point_id: string;
+  point_name: string;
 
   @Column()
-  point_name: string;
+  token_id: number;
 
   @Column()
   point_logo_url: string;
