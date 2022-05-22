@@ -89,86 +89,61 @@ export class VoucherService {
   async claimVoucher(data: CreateVoucherUserDto) {
 
     const { voucher_id, username, payment } = data;
-    let garudaMilesToBUMNPoin: number = 0;
-    let briPoinToBUMNPoin: number = 0;
-    let bumnPoint: number = 0;
-    let totalBUMNPoint: number = 0;
+    const bumnPoinTokenId = "1";
+    const organization = "Org1";
+
+    let totalBUMNPoin: number = 0;
 
     try {
-
-      console.log("Voucher ID: " + voucher_id);
-
-
-      const baseQueryVoucher = `select * from voucher v where v.id = ${voucher_id};`;
-      console.log("Base Query: " + baseQueryVoucher);
 
       const queryResultVoucher = await this.connection.query(`select * from voucher v where v.id = ${voucher_id};`).catch((error) => {
         throw new BadRequestException(`Cannot Execute Query: ${error}`);
       });
 
-      console.log("Query Result: " + queryResultVoucher[0].id);
-
-
       const { point_price, provider_id } = queryResultVoucher[0];
-
 
       for (let index = 0; index < data.payment.length; index++) {
         const element = payment[index];
 
         // BUMN Poin Calculation
-        if (element.token_id === 1) {
-          console.log("BUMN Poin Amount: " + element.amount);
-          bumnPoint = element.amount * element.exchange_rate;
+        if (element.token_id === parseInt(bumnPoinTokenId)) {
+          totalBUMNPoin = totalBUMNPoin + (element.amount * element.exchange_rate);
           continue
         }
 
-        // BRI Point Calculation
-        if (element.token_id === 2) {
-          console.log("BRI Poin Amount: " + element.amount);
-          this.tokenService.exchange(username, "Org1", element.token_id.toString(), "1", element.amount.toString()).catch((error) => {
-            throw new BadRequestException(`Cannot Execute exchange: ${error.responses[0].response.message}`);
-          });
-          briPoinToBUMNPoin = element.amount * element.exchange_rate;
-          continue
-        }
-
-        // Garuda Miles Calculation
-        if (element.token_id === 3) {
-          console.log("Miles Poin Amount: " + element.amount);
-          this.tokenService.exchange(username, "Org1", element.token_id.toString(), "1", element.amount.toString()).catch((error) => {
-            throw new BadRequestException(`Cannot Execute exchange: ${error.responses[0].response.message}`);
-
-          });
-          garudaMilesToBUMNPoin = element.amount * element.exchange_rate;
+        // Exchange Poin to BUMNPoin
+        if (element.amount !== 0) {
+          // this.tokenService.exchange(username, organization, element.token_id.toString(), bumnPoinTokenId, element.amount.toString()).catch((error) => {
+          //   throw new BadRequestException(`Cannot Execute exchange: ${error.responses[0].response.message}`);
+          // });
+          totalBUMNPoin = totalBUMNPoin + (element.amount * element.exchange_rate);
           continue
         }
 
       }
 
       // Get Current BUMN Poin User Balance
-      const userBUMNPoinBalance = await this.tokenService.getClientAccountBalance(username, "Org1", "1").catch((error) => {
-        throw new BadRequestException(`Cannot Execute getClientAccountBalance: ${error.responses[0].response.message}`);
-      });
+      // const userBUMNPoinBalance = await this.tokenService.getClientAccountBalance(username, "Org1", "1").catch((error) => {
+      //   throw new BadRequestException(`Cannot Execute getClientAccountBalance: ${error.responses[0].response.message}`);
+      // });
 
-      totalBUMNPoint = bumnPoint + garudaMilesToBUMNPoin + briPoinToBUMNPoin;
-
-      console.log(`Point Price: ${point_price} BUMN Poin`);
-      console.log(`Total Point: ${totalBUMNPoint} BUMN Poin`);
+      console.log(`Point Price Need: ${point_price} BUMN Poin`);
+      console.log(`Total Input Point: ${totalBUMNPoin} BUMN Poin`);
 
 
-      if (point_price > totalBUMNPoint) {
-        throw new BadRequestException(`Your BUMN Poin input price is not enough for this transaction. Required ${point_price} BUMNPoin, Your input ${totalBUMNPoint} BUMNPoin`);
+      if (point_price > totalBUMNPoin) {
+        throw new BadRequestException(`Your BUMN Poin input price is not enough for this transaction. Required ${point_price} BUMNPoin, Your input ${totalBUMNPoin} BUMNPoin`);
       }
 
-      if (userBUMNPoinBalance < totalBUMNPoint) {
+      // if (userBUMNPoinBalance < totalBUMNPoin) {
 
-        throw new BadRequestException(`Your BUMN Poin Balance is not enough for this transaction. Required ${point_price}, Your Balance ${userBUMNPoinBalance}`);
-      }
+      //   throw new BadRequestException(`Your BUMN Poin Balance is not enough for this transaction. Required ${point_price}, Your Balance ${userBUMNPoinBalance}`);
+      // }
 
       // Submit Transfer BUMN Token to Merchant
-      this.tokenService.transferTokenFrom(username, "Org1", provider_id, "Org1", "1", totalBUMNPoint.toString()).catch((error) => {
-        throw new BadRequestException(`Cannot Execute transferTokenFrom: ${error.responses[0].response.message}`);
-      });
+      // this.tokenService.transferTokenFrom(username, "Org1", provider_id, "Org1", "1", totalBUMNPoin.toString()).catch((error) => {
+      //   throw new BadRequestException(`Cannot Execute transferTokenFrom: ${error.responses[0].response.message}`);
+      // });
 
       return queryResultVoucher;
 
