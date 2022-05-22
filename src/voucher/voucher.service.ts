@@ -113,11 +113,10 @@ export class VoucherService {
 
         // Exchange Poin to BUMNPoin
         if (element.amount > 0) {
-          this.tokenService.exchange(username, organization, element.token_id.toString(), bumnPoinTokenId, element.amount.toString()).catch((error) => {
+          await this.tokenService.exchange(username, organization, element.token_id.toString(), bumnPoinTokenId, element.amount.toString()).catch((error) => {
             throw new BadRequestException(`Cannot Execute exchange: ${error.responses[0].response.message}`);
           });
           totalBUMNPoin = totalBUMNPoin + (element.amount * element.exchange_rate);
-          continue
         }
 
       }
@@ -141,7 +140,7 @@ export class VoucherService {
       }
 
       // Submit Transfer BUMN Token to Merchant
-      this.tokenService.transferTokenFrom(username, organization, provider_id, organization, bumnPoinTokenId, totalBUMNPoin.toString()).catch((error) => {
+      await this.tokenService.transferTokenFrom(username, organization, provider_id, organization, bumnPoinTokenId, totalBUMNPoin.toString()).catch((error) => {
         throw new BadRequestException(`Cannot Execute transferTokenFrom: ${error.responses[0].response.message}`);
       });
 
