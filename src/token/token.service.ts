@@ -1,11 +1,11 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { TokenExchange } from './token.model';
 import { ExchangeRateQueryDto } from './dto/exchange-rate-query.dto';
 import { FabricGatewayService } from 'src/fabric-gateway/fabric-gateway.service';
 import { UsersService } from 'src/users/users.service';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectConnection, InjectRepository } from '@nestjs/typeorm';
 import { ExchangeTransaction } from './echange-transaction.entity';
-import { Repository } from 'typeorm';
+import { Connection, Repository } from 'typeorm';
 import { Contract } from 'fabric-network';
 
 const CHANNEL_NAME = 'inpoinchannel';
@@ -18,6 +18,7 @@ export class TokenService {
     private userService: UsersService,
     @InjectRepository(ExchangeTransaction)
     private exchangeTransactionRepository: Repository<ExchangeTransaction>,
+    @InjectConnection() private readonly connection: Connection
   ) {}
 
   tokenExchange: TokenExchange[] = [];
@@ -58,12 +59,32 @@ export class TokenService {
     return rate;
   }
 
-  getExchange(exchangeRateQuery: ExchangeRateQueryDto) {
+  async getExchange(exchangeRateQuery: ExchangeRateQueryDto) {
     const { toTokenId, fromTokenAmount } = exchangeRateQuery;
-    const tokenRate = this.getRate(exchangeRateQuery);
+
+    const querySelectPoint = await this.connection.query(`select p.point_name, p.token_id, p.exchange_rate from point p where p.token_id = '${toTokenId}';`).catch((error) => {
+      throw new BadRequestException(`Cannot Execute Query: ${error}`);
+    });
+
+    if (querySelectPoint[0] === undefined) {
+      throw new HttpException(
+        `TokenID ${toTokenId} not found, please input correct TokenID`,
+        HttpStatus.BAD_REQUEST
+      );
+    }
+
+    const {exchange_rate} = querySelectPoint[0];
+
+    console.log("Exchange Rate: " + exchange_rate);
+
+    const tokenRate = exchange_rate;
+
     const toTokenExchangeAmount = fromTokenAmount * tokenRate;
-    const adminFee = 1000 / this.exchangeRates[toTokenId].rate;
+    const adminFee = 1000 / tokenRate;
     const totalExchange = toTokenExchangeAmount - adminFee;
+
+    // console.log(`fromTokenAmount: ${fromTokenAmount}, toTokenExchangeAmount: ${toTokenExchangeAmount}, adminFee: ${adminFee}, totalExchange: ${totalExchange}`);
+    
     return { fromTokenAmount, toTokenExchangeAmount, adminFee, totalExchange };
   }
 
