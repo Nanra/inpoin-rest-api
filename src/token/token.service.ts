@@ -60,32 +60,44 @@ export class TokenService {
   }
 
   async getExchange(exchangeRateQuery: ExchangeRateQueryDto) {
-    const { toTokenId, fromTokenAmount } = exchangeRateQuery;
+    const { toTokenId, fromTokenAmount, fromTokenId } = exchangeRateQuery;
 
-    const querySelectPoint = await this.connection.query(`select p.point_name, p.token_id, p.exchange_rate from point p where p.token_id = '${toTokenId}';`).catch((error) => {
+    const querySelectPointSender = await this.connection.query(`select p.exchange_rate as sender_rate from point p where p.token_id = '${fromTokenId}';`).catch((error) => {
       throw new BadRequestException(`Cannot Execute Query: ${error}`);
     });
 
-    if (querySelectPoint[0] === undefined) {
+    if (querySelectPointSender[0] === undefined) {
       throw new HttpException(
-        `TokenID ${toTokenId} not found, please input correct TokenID`,
+        `TokenID Sender ${fromTokenId} not found, please input correct TokenID Sender`,
         HttpStatus.BAD_REQUEST
       );
     }
 
-    const {exchange_rate} = querySelectPoint[0];
+    const querySelectPointRecepient = await this.connection.query(`select p.exchange_rate as recepient_rate from point p where p.token_id = '${toTokenId}';`).catch((error) => {
+      throw new BadRequestException(`Cannot Execute Query: ${error}`);
+    });
 
-    console.log("Exchange Rate: " + exchange_rate);
+    if (querySelectPointRecepient[0] === undefined) {
+      throw new HttpException(
+        `TokenID Recepient ${toTokenId} not found, please input correct TokenID Recepient`,
+        HttpStatus.BAD_REQUEST
+      );
+    }
 
-    const tokenRate = exchange_rate;
+    const {sender_rate} = querySelectPointSender[0];
+    const {recepient_rate} = querySelectPointRecepient[0];
 
-    const toTokenExchangeAmount = fromTokenAmount * tokenRate;
-    const adminFee = 1000 / tokenRate;
-    const totalExchange = toTokenExchangeAmount - adminFee;
+    // console.log("Sender Exchange Rate: " + sender_rate);
+    // console.log("Recepient Exchange Rate: " + recepient_rate);
 
-    // console.log(`fromTokenAmount: ${fromTokenAmount}, toTokenExchangeAmount: ${toTokenExchangeAmount}, adminFee: ${adminFee}, totalExchange: ${totalExchange}`);
+    const adminFee = 1000 / sender_rate;
+    const fromTokenAmountNet = fromTokenAmount - adminFee;
+
+    const totalTokenEarned = Math.round(fromTokenAmountNet * sender_rate / recepient_rate);
+
+    console.log(`fromTokenAmount: ${fromTokenAmount}, adminFee: ${adminFee},  totalPointEarned: ${totalTokenEarned}, fromTokenAmountNet: ${fromTokenAmountNet}`);
     
-    return { fromTokenAmount, toTokenExchangeAmount, adminFee, totalExchange };
+    return { fromTokenAmount, adminFee, fromTokenAmountNet, totalTokenEarned};
   }
 
   async getTokens(username: string, organization: string, tokenId: string) {
