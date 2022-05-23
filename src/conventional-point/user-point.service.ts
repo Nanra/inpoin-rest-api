@@ -131,7 +131,6 @@ export class UserPointService {
       resultSet.push(element);
       // console.log(`Usernamer: ${element.username} , Token ID: ${element.token_id.toString()}`);
       resultSet[index].amount = await this.getClientAccountBalance(element.username, 'Org1', element.token_id.toString());
-      
     }
 
     return resultSet;

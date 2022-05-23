@@ -113,31 +113,31 @@ export class VoucherService {
 
         // Exchange Poin to BUMNPoin
         if (element.amount > 0) {
-          // await this.tokenService.exchange(username, organization, element.token_id.toString(), bumnPoinTokenId, element.amount.toString()).catch((error) => {
-          //   throw new BadRequestException(`Cannot Execute exchange: ${error.responses[0].response.message}`);
-          // });
+          await this.tokenService.exchange(username, organization, element.token_id.toString(), bumnPoinTokenId, element.amount.toString()).catch((error) => {
+            throw new BadRequestException(`Cannot Execute exchange: ${error.responses[0].response.message}`);
+          });
           totalBUMNPoin = totalBUMNPoin + (element.amount * element.exchange_rate);
         }
 
       }
 
       // Get Current BUMN Poin User Balance
-      // const userBUMNPoinBalance = await this.tokenService.getClientAccountBalance(username, organization, bumnPoinTokenId).catch((error) => {
-      //   throw new BadRequestException(`Cannot Execute getClientAccountBalance: ${error.responses[0].response.message}`);
-      // });
+      const userBUMNPoinBalance = await this.tokenService.getClientAccountBalance(username, organization, bumnPoinTokenId).catch((error) => {
+        throw new BadRequestException(`Cannot Execute getClientAccountBalance: ${error.responses[0].response.message}`);
+      });
 
       console.log(`Point Price Need: ${point_price} BUMN Poin`);
       console.log(`Total Point Input: ${totalBUMNPoin} BUMN Poin`);
-      // console.log(`User BUMN Poin Current Balance: ${userBUMNPoinBalance} BUMN Poin`);
+      console.log(`User BUMN Poin Current Balance: ${userBUMNPoinBalance} BUMN Poin`);
 
       if (point_price > totalBUMNPoin) {
         throw new BadRequestException(`Your BUMN Poin input price is not enough for this transaction. Required ${point_price} BUMNPoin, Your input ${totalBUMNPoin} BUMNPoin`);
       }
 
-      // if (userBUMNPoinBalance < totalBUMNPoin) {
+      if (userBUMNPoinBalance < totalBUMNPoin) {
 
-      //   throw new BadRequestException(`Your BUMN Poin Balance is not enough for this transaction. Required ${point_price}, Your Balance ${userBUMNPoinBalance}`);
-      // }
+        throw new BadRequestException(`Your BUMN Poin Balance is not enough for this transaction. Required ${point_price}, Your Balance ${userBUMNPoinBalance}`);
+      }
 
 
       console.log("Username sender: " + username);
@@ -145,9 +145,9 @@ export class VoucherService {
       
 
       // Submit Transfer BUMN Token to Merchant
-      // await this.tokenService.transferTokenFrom(username, organization, provider_id, organization, bumnPoinTokenId, totalBUMNPoin.toString()).catch((error) => {
-      //   throw new BadRequestException(`Cannot Execute transferTokenFrom: ${error.responses[0].response.message}`);
-      // });
+      await this.tokenService.transferTokenFrom(username, organization, provider_id, organization, bumnPoinTokenId, totalBUMNPoin.toString()).catch((error) => {
+        throw new BadRequestException(`Cannot Execute transferTokenFrom: ${error.responses[0].response.message}`);
+      });
 
       return queryResultVoucher;
 
