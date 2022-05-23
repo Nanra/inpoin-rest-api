@@ -3,5 +3,6 @@ export class CreatePointDto {
     point_name: string;
     point_logo_url: string;
     exchange_rate: number;
+    min_token_transaction: number;
   }
   

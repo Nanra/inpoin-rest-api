@@ -18,6 +18,9 @@ export class Point {
   @Column()
   exchange_rate: number;
 
+  @Column()
+  min_token_transaction: number;
+
   @Column({ type: 'timestamp', nullable: true })
   created_at: Date | string;
 

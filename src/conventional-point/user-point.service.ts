@@ -64,7 +64,7 @@ export class UserPointService {
   }
 
   async createPoint(payload: CreatePointDto): Promise<Point> {
-    const { token_id, point_name, exchange_rate, point_logo_url} = payload;
+    const { token_id, point_name, exchange_rate, min_token_transaction, point_logo_url} = payload;
 
     const pointExist = await this.findPointByTokenId(token_id);
     // console.log(`Payload Create Point: ${point_amount}`);
@@ -80,6 +80,7 @@ export class UserPointService {
       point_name,
       point_logo_url,
       exchange_rate,
+      min_token_transaction,
       created_at: new Date().toISOString()
     });
 
