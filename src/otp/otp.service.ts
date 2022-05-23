@@ -69,7 +69,14 @@ export class OtpService {
 
     // Check if OTP Already used
     if (otp.verified) {
-      throw new HttpException('OTP Code Already Used', HttpStatus.BAD_REQUEST);
+
+      // Real Logic
+      // throw new HttpException('OTP Code Already Verified', HttpStatus.BAD_REQUEST);
+
+      // Logic For Demo Purpose
+      response.statusCode = HttpStatus.OK;
+      response.statusMessage = `OTP Code Already Used & Verified at ${otp.verified_at}`;
+      return (response);
     }
 
     // Check if OTP Expired
@@ -77,6 +84,14 @@ export class OtpService {
     const expiredAt = new Date(expired_at).getTime();
     if (expiredAt < Date.now()) {
       throw new HttpException('OTP Code Expired', HttpStatus.BAD_REQUEST);
+    }
+
+    // For Demo Purpose
+    if (otpCode == "111111") {
+      otp.verified = true;
+      otp.verified_at = new Date().toISOString();
+      this.otpRepository.save(otp);
+      return (response.statusCode = HttpStatus.OK);
     }
 
     if (otp.otp_code != otpCode) {
