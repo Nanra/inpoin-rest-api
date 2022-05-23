@@ -34,7 +34,7 @@ export class UserPointController {
     @Post('pair')
     async pairUserPoint(
         @Req() { user: { username } },
-        @Body() payload: PairPointDto) {
+        @Body() payload: PairPointDto) {            
         return this.userPointService.pairing(username, payload.phone_number, payload.point_id);
     }
 

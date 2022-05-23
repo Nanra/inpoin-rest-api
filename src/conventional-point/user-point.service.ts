@@ -90,22 +90,31 @@ export class UserPointService {
 
   async pairing(username: string, phone_number: string, point_id: number) {
 
-    const point = await this.getUnpairedPoint(username, phone_number, point_id);
+    const pairedPoint = await this.getPairedPoint(username, phone_number, point_id);
+    const unpairedPoint = await this.getUnpairedPoint(username, phone_number, point_id);
 
-    console.log("Point Exist: " + point.username);
-    console.log(`Username: ${username}, Phone Number: ${phone_number}, Point ID: ${point_id} `);
-    
 
-    if (point == undefined) {
-      throw new HttpException('Failed to pairing point, invalid username, phone number or point name', HttpStatus.BAD_REQUEST);
+    if (pairedPoint !== undefined) {
+      throw new HttpException(`This Point already paired to user: ${username}`, HttpStatus.BAD_REQUEST);
     }
 
-    point.paired = true
-    point.paired_at =  new Date().toISOString();
+    if (unpairedPoint === undefined) {
+      throw new HttpException('Failed to pairing point. Invalid username, phone number or point name', HttpStatus.BAD_REQUEST);
+    }
 
-    this.userPointRepository.save(point);
+    console.log("Pairing Service Username: " + username);
+    console.log("Poin Query: " + unpairedPoint);
+    
 
-    return point;
+    console.log("Point Exist: " + unpairedPoint.username);
+    console.log(`Username: ${username}, Phone Number: ${phone_number}, Point ID: ${point_id} `);
+
+    unpairedPoint.paired = true
+    unpairedPoint.paired_at =  new Date().toISOString();
+
+    this.userPointRepository.save(unpairedPoint);
+
+    return unpairedPoint;
 
   }
 
@@ -130,6 +139,14 @@ export class UserPointService {
   async getUnpairedPoint(username: string, phone_number: string, point_id: number) {
     const result = this.userPointRepository.findOne({
       where: { username, phone_number, point_id, paired: false }
+    });
+
+    return result;
+  }
+
+  async getPairedPoint(username: string, phone_number: string, point_id: number) {
+    const result = this.userPointRepository.findOne({
+      where: { username, phone_number, point_id, paired: true }
     });
 
     return result;
