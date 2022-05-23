@@ -91,13 +91,14 @@ export class TokenService {
     // console.log("Recepient Exchange Rate: " + recepient_rate);
 
     const adminFee = 1000 / sender_rate;
+    const adminFeePercentage = adminFee / 100;
     const fromTokenAmountNet = fromTokenAmount - adminFee;
 
     const totalTokenEarned = Math.round(fromTokenAmountNet * sender_rate / recepient_rate);
 
-    console.log(`fromTokenAmount: ${fromTokenAmount}, adminFee: ${adminFee},  totalPointEarned: ${totalTokenEarned}, fromTokenAmountNet: ${fromTokenAmountNet}`);
+    // console.log(`fromTokenAmount: ${fromTokenAmount}, adminFee: ${adminFee},  totalPointEarned: ${totalTokenEarned}, fromTokenAmountNet: ${fromTokenAmountNet}`);
     
-    return { fromTokenAmount, adminFee, fromTokenAmountNet, totalTokenEarned};
+    return { fromTokenAmount, adminFee, fromTokenAmountNet, totalTokenEarned, adminFeePercentage};
   }
 
   async getTokens(username: string, organization: string, tokenId: string) {
