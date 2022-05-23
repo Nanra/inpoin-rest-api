@@ -67,7 +67,7 @@ export class OtpService {
   async validateOtp(user_id: number, otpCode: string) {
     const otp = await this.getLatestOtpByUserId(user_id);
 
-    // Check if OTP Already used
+    // Check if Last Generated OTP Already used
     if (otp.verified) {
 
       // Real Logic
