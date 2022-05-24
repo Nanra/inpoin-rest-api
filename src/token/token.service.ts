@@ -555,13 +555,26 @@ export class TokenService {
   }
 
   async getTransactionHistory(username: string, limit: number) {
-    const result = this.exchangeTransactionRepository.find({
+    let result = await this.exchangeTransactionRepository.find({
       take: limit,
       order: {
         created_at: 'DESC',
       },
       where: { username },
     });
+
+    if (result) {
+      result.forEach(element => {
+
+        if (element.tx_type == "exchange") {
+          element.description = `Point exchange dari ${element.from_token_name} ke ${element.to_token_name}`
+        }
+
+        if (element.tx_type == "redeem") {
+          element.description = `Redeem voucher menggunakan ${element.from_token_name}`
+        }
+      });
+    }
 
     return result;
   }
