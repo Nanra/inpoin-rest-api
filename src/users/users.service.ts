@@ -33,8 +33,8 @@ export class UsersService {
     return created;
   }
 //find user by username
-  async findOne(username: string, organization: string): Promise<any> {
-    return this.usersRepository.findOne({ username, organization });
+  async findOne(email: string, organization: string): Promise<any> {
+    return this.usersRepository.findOne({ email, organization });
   }
   async findByEmail(email: string,): Promise<any> {
     return this.usersRepository.findOne({ email });

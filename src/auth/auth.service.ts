@@ -54,38 +54,45 @@ export class AuthService {
 
   //validate that the user exist
   async validateUser(
-    username: string,
+    email: string,
     organization: string,
     password: string,
   ): Promise<any> {
-    const user = await this.usersService.findOne(username, organization);
-    const isMatch = await bcrypt.compare(password, user.password);
-    // console.log("Validate User IsPassword Match: " + isMatch);
-    
-    if (isMatch) {
-      return user;
-    }
-    return null;
-  }
-  async login(payload: LoginDto): Promise<any> {
-    const { username, organization, password } = payload;
-    const user = await this.validateUser(username, organization, password);
 
-    // console.log("Payload User: " + user);
-    
+    const user = await this.usersService.findOne(email, organization);
 
     if (user) {
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (isMatch) {
+        return user;
+      }
+    }
+
+    return null;
+  }
+
+  async login(payload: LoginDto): Promise<any> {
+    const { email, organization, password } = payload;
+    const user = await this.validateUser(email, organization, password);
+
+    console.log("Payload User: " + user);
+    
+    if (user) {
+
+      const {id, username, organization} = user;
+
       const jwtPayload = {
-        username: user.username,
-        organization: user.organization,
-        sub: user.id,
+        username: username,
+        organization: organization,
+        sub: id,
       };
+
       return {
-        username,
+        username: username,
         access_token: this.jwtService.sign(jwtPayload)
       };
     }
-    throw new HttpException('Invalid Username or Password', 401);
+    throw new HttpException('Invalid Email or Password', 401);
   }
 
   async enrollAdmin(payload: EnrollAdminDto): Promise<any> {
