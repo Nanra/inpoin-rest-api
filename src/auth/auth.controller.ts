@@ -21,7 +21,7 @@ export class AuthController {
   @ApiOkResponse({ description: "Login successful"})
   @ApiUnauthorizedResponse({ description: "Invalid login"})
   login(@Body() payload: LoginDto): Promise<string> {
-    console.log(payload)
+    // console.log(payload)
     return this.authService.login(payload);
   }
   @Post('enroll-admin')

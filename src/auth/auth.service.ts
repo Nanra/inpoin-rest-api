@@ -60,7 +60,7 @@ export class AuthService {
   ): Promise<any> {
     const user = await this.usersService.findOne(username, organization);
     const isMatch = await bcrypt.compare(password, user.password);
-    console.log("Validate User IsPassword Match: " + isMatch);
+    // console.log("Validate User IsPassword Match: " + isMatch);
     
     if (isMatch) {
       return user;
@@ -71,7 +71,7 @@ export class AuthService {
     const { username, organization, password } = payload;
     const user = await this.validateUser(username, organization, password);
 
-    console.log("Payload User: " + user);
+    // console.log("Payload User: " + user);
     
 
     if (user) {
@@ -81,7 +81,8 @@ export class AuthService {
         sub: user.id,
       };
       return {
-        access_token: this.jwtService.sign(jwtPayload),
+        username,
+        access_token: this.jwtService.sign(jwtPayload)
       };
     }
     throw new HttpException('Invalid Username or Password', 401);
