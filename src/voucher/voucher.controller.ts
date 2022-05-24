@@ -55,4 +55,10 @@ export class VoucherController{
         return this.voucherService.getUserVoucherDetail(idUserVoucher);
     }
 
+    @UseGuards(JwtOtpGuard)
+    @Get('/history/user-claim')
+    async getUserVoucherHistory(@Req() { user: { username } }) {
+        return this.voucherService.getUserVoucherHistory(username);
+    }
+
 }
