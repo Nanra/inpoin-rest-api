@@ -504,6 +504,7 @@ export class TokenService {
     fromTokenId: string,
     toTokenId: string,
     amount: string,
+    tx_type: string,
   ) {
     const gateway = await this.fabricGatewayService.initGateway(
       username,
@@ -538,6 +539,7 @@ export class TokenService {
         fee_token_name: to_token_name,
         fee_amount: result.PlatformFee,
         tx_id: txId,
+        tx_type
       };
 
       await this.exchangeTransactionRepository.save(exchangeTransaction);

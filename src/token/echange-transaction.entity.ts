@@ -47,6 +47,9 @@ export class ExchangeTransaction {
   @Column()
   tx_id: string;
 
+  @Column()
+  tx_type: string;
+
   @Index()
   @CreateDateColumn()
   created_at: Date;

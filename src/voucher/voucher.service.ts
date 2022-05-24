@@ -91,6 +91,7 @@ export class VoucherService {
     const { voucher_id, username, payment } = data;
     const bumnPoinTokenId = "1";
     const organization = "Org1";
+    const tx_type = "redeem";
 
     let totalBUMNPoin: number = 0;
 
@@ -113,7 +114,7 @@ export class VoucherService {
 
         // Exchange Poin to BUMNPoin
         if (element.amount > 0) {
-          await this.tokenService.exchange(username, organization, element.token_id.toString(), bumnPoinTokenId, element.amount.toString()).catch((error) => {
+          await this.tokenService.exchange(username, organization, element.token_id.toString(), bumnPoinTokenId, element.amount.toString(), tx_type).catch((error) => {
             throw new BadRequestException(`Cannot Execute exchange: ${error.responses[0].response.message}`);
           });
           totalBUMNPoin = totalBUMNPoin + (element.amount * element.exchange_rate);

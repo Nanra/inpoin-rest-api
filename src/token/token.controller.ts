@@ -269,12 +269,14 @@ export class TokenController {
     @Body() body: TokenExchangeDto,
   ) {
     const {fromTokenId, toTokenId, amount} = body
+    const tx_type = "exchange";
     return this.tokenService.exchange(
       username, 
       organization, 
       fromTokenId, 
       toTokenId, 
-      amount);
+      amount,
+      tx_type);
     }
 
   @UseGuards(JwtOtpGuard)
