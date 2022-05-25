@@ -17,7 +17,7 @@ export class AuthService {
   ) {}
   //to change the user register data into token
   async register(payload: RegisterDto): Promise<any> {
-    const { username, organization, password, email, phone_number } = payload;
+    const { username, organization, password, email, phone_number, fullname, pin, nik } = payload;
 
     try {
       // Register, and Enroll user to Certificate Authority
@@ -34,6 +34,9 @@ export class AuthService {
       const user = await this.usersService.create({
         username,
         password: hash,
+        nik,
+        pin,
+        fullname,
         organization,
         email,
         phone_number
@@ -45,6 +48,9 @@ export class AuthService {
         sub: user.id,
       };
       return {
+        username,
+        email,
+        phone_number,
         access_token: this.jwtService.sign(jwtPayload),
       };
     } catch (error) {

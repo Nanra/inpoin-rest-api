@@ -14,11 +14,11 @@ export class UsersService {
   ) {}
 //creating a new user, storing user data, finding exixting user
   async create(payload: CreateUserDto): Promise<User> {
-    const { username, password, organization, email, phone_number } = payload;
-    const user = await this.findOne(username, organization);
+    const { username, password, organization, email, phone_number, pin, fullname, nik } = payload;
+    const user = await this.findOne(email, organization);
     if (user) {
       throw new HttpException(
-        `username already exists in organization ${organization}`,
+        `Email ${email} already registered in organization ${organization}`,
         401,
       );
     }
@@ -28,7 +28,9 @@ export class UsersService {
       organization,
       email,
       phone_number,
-      pin: "1111"
+      pin,
+      fullname,
+      nik
     });
     return created;
   }

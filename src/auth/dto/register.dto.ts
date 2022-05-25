@@ -26,4 +26,23 @@ export class RegisterDto {
     description: "The desired user phone number to be registered",
   })  
   phone_number: string;
+
+  @ApiProperty({
+    type: String,
+    description: "The FUll Name of the user",
+  })
+  fullname: string;
+
+  @ApiProperty({
+    type: String,
+    description: "The NIK of the user",
+  })
+  nik: string;
+
+  @ApiProperty({
+    type: String,
+    description: "The PIN of the user",
+  })
+  pin: string;
+
 }

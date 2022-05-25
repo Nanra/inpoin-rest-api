@@ -5,6 +5,8 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
+  
+
   @Column()
   username: string;
 
@@ -22,6 +24,12 @@ export class User {
 
   @Column()
   pin: string;
+
+  @Column()
+  fullname: string;
+
+  @Column()
+  nik: string;
 
   
 }
