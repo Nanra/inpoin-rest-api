@@ -159,8 +159,8 @@ export class VoucherService {
   }
 
   async getVouchers() {
-    const result = this.voucherRepository.find();
-    return result;
+    const queryResult = await this.connection.query(`SELECT * FROM VOUCHER V WHERE V.EXPIRED <> TRUE ORDER BY V.EXPIRED_AT ASC;`);
+    return queryResult;
   }
 
   async getUserVouchers(username: string) {
