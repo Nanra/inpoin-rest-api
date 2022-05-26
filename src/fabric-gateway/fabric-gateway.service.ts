@@ -19,8 +19,8 @@ export class FabricGatewayService {
     // console.log('CONNECTION_PROFILE_PATH', CONNECTION_PROFILE_PATH);
 
     // Comment this for Local Dev
-    const data = fs.readFileSync(CONNECTION_PROFILE_PATH);
-    this.connectionProfile = yaml.load(data);
+    // const data = fs.readFileSync(CONNECTION_PROFILE_PATH);
+    // this.connectionProfile = yaml.load(data);
 
 
     // console.log(this.connectionProfile.peers['peer0.org1.example.com'].grpcOptions);

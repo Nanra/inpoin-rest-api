@@ -156,7 +156,7 @@ export class TokenController {
   @ApiOkResponse({ description: "The resource has been succesfully returned"})
   @ApiForbiddenResponse({ description: "Forbidden"})
   getExchangeSummary(@Query() query: ExchangeRateQueryDto) {
-    return this.tokenService.getExchange(query);
+    return this.tokenService.getExchangeSummary(query);
   }
 
   @UseGuards(JwtOtpGuard)

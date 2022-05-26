@@ -59,7 +59,10 @@ export class TokenService {
     return rate;
   }
 
-  async getExchange(exchangeRateQuery: ExchangeRateQueryDto) {
+  async getExchangeSummary(exchangeRateQuery: ExchangeRateQueryDto) {
+
+    const feePercentage = 2 / 100;
+
     const { toTokenId, fromTokenAmount, fromTokenId } = exchangeRateQuery;
 
     const querySelectPointSender = await this.connection.query(`select p.exchange_rate as sender_rate from point p where p.token_id = '${fromTokenId}';`).catch((error) => {
@@ -87,14 +90,32 @@ export class TokenService {
     const {sender_rate} = querySelectPointSender[0];
     const {recepient_rate} = querySelectPointRecepient[0];
 
-    // console.log("Sender Exchange Rate: " + sender_rate);
-    // console.log("Recepient Exchange Rate: " + recepient_rate);
-
-    const adminFee = 1000 / sender_rate;
-    const adminFeePercentage = adminFee / 100;
+    const adminFeePercentage = feePercentage * 100;
+    const adminFee = Math.ceil(fromTokenAmount * feePercentage);
     const fromTokenAmountNet = fromTokenAmount - adminFee;
+    const fromTokenNetInBUMNPoin = fromTokenAmountNet * sender_rate;
 
-    const totalTokenEarned = Math.round(fromTokenAmountNet * sender_rate / recepient_rate);
+    const tokenConverted = ( (fromTokenAmountNet * sender_rate) / recepient_rate);
+    const tokenRemainder = tokenConverted % 1;
+    const tokenRemainderInBUMNPoin = Math.round(tokenRemainder * sender_rate);
+
+    const totalTokenEarned = tokenConverted - tokenRemainder;
+
+    console.log("Sender Exchange Rate: " + sender_rate);
+    console.log("Recepient Exchange Rate: " + recepient_rate);
+
+    console.log(`transactionFeeCut: ${adminFee};
+    fromTokenNet: ${fromTokenAmountNet};
+    fromTokenNetInBUMNPoin: ${fromTokenNetInBUMNPoin} BUMN Poin;
+    tokenConverted: ${tokenConverted};
+    tokenRemainder: ${tokenRemainder};
+    tokenRemainderInBUMNPoin: ${tokenRemainderInBUMNPoin} BUMN Poin;
+    tokenEarned: ${totalTokenEarned}`);
+
+    // const adminFee = 1000 / sender_rate;
+    // const fromTokenAmountNet = fromTokenAmount - adminFee;
+
+    // const totalTokenEarned = Math.round(fromTokenAmountNet * sender_rate / recepient_rate);
 
     // console.log(`fromTokenAmount: ${fromTokenAmount}, adminFee: ${adminFee},  totalPointEarned: ${totalTokenEarned}, fromTokenAmountNet: ${fromTokenAmountNet}`);
     
