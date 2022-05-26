@@ -19,12 +19,14 @@ export class AuthService {
   async register(payload: RegisterDto): Promise<any> {
     const { username, organization, password, email, phone_number, fullname, pin, nik } = payload;
 
+    const usernameTrimmed = username.replace(' ', '').toLowerCase();
+
     try {
       // Register, and Enroll user to Certificate Authority
       // Enrollment identity is saved to filesystem Wallet
       // TODO: Refactor wallet interaction to own module
       await this.caService.registerAndEnrollUser({
-        username,
+        username: usernameTrimmed,
         userOrg: organization,
       });
 
@@ -32,7 +34,7 @@ export class AuthService {
       // Save username and hashed password to DB
       const hash = await bcrypt.hash(password, saltOrRounds);
       const user = await this.usersService.create({
-        username,
+        username: usernameTrimmed,
         password: hash,
         nik,
         pin,
@@ -43,12 +45,12 @@ export class AuthService {
       });
       // return jwt
       const jwtPayload = {
-        username: user.username,
+        username: usernameTrimmed,
         organization: user.organization,
         sub: user.id,
       };
       return {
-        username,
+        usernameTrimmed,
         email,
         phone_number,
         access_token: this.jwtService.sign(jwtPayload),
