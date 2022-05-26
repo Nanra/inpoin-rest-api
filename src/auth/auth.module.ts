@@ -9,6 +9,8 @@ import { jwtConstants } from './constants';
 import { JwtStrategy } from './jwt.strategy';
 import { OtpModule } from '../otp/otp.module';
 import { JwtOtpStrategy } from './jwt-otp.strategy';
+import { TokenModule } from 'src/token/token.module';
+import { UserPointModule } from 'src/conventional-point/user-point.module';
 
 @Module({
   imports: [
@@ -20,6 +22,8 @@ import { JwtOtpStrategy } from './jwt-otp.strategy';
       signOptions: { expiresIn: '365d' },
     }),
     OtpModule,
+    TokenModule,
+    UserPointModule
   ],
   controllers: [AuthController],
   providers: [

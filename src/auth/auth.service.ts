@@ -1,4 +1,4 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { RegisterDto } from './dto/register.dto';
 import { EnrollAdminDto } from './dto/enroll-admin.dto';
 import { LoginDto } from './dto/login.dto';
@@ -6,15 +6,49 @@ import { CaService } from 'src/ca/ca.service';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { InjectConnection } from '@nestjs/typeorm';
+import { Connection } from 'typeorm';
+import { UserPointService } from 'src/conventional-point/user-point.service';
+import { TokenService } from 'src/token/token.service';
+import { CreateUserPointDto } from 'src/conventional-point/dto/create-user-point.dto';
 
 const saltOrRounds = 10;
 @Injectable()
 export class AuthService {
   constructor(
+    @InjectConnection() private readonly connection: Connection,
+
     private readonly caService: CaService,
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
+    private readonly userPointService: UserPointService,
+    private readonly tokenService: TokenService,
+
+
+
   ) {}
+
+  async issuingTokenAirDrop(username: string, phone_number: string) {
+
+    const selectMinter = await this.connection.query(`SELECT M.USERNAME AS MINTER , M.TOKEN_ID, P.POINT_NAME FROM MINTER M INNER JOIN POINT P ON M.POINT_ID = P.ID ORDER BY P.ID ASC;`);
+    
+    selectMinter.forEach( async element => {
+      const {minter, token_id, point_name} = element;
+      const userPointPayload: CreateUserPointDto = {username, phone_number, point_name};
+
+      console.log("Payload Point Name: " + userPointPayload.point_name);
+      
+      // Issuing Token Air Drop to User
+        await this.tokenService.transferTokenFrom(minter, "Org1", username, "Org1", token_id.toString(), token_id == 1 ? "10000" : "1000").then(() => {
+          console.log(`Success Issued ${point_name}`);
+        }).catch((error) => {
+          throw new HttpException(`Cannot Issuing Token Air Drop: ${error.responses[0].response.message}`, HttpStatus.BAD_REQUEST);
+        });
+
+      this.userPointService.createUserPoint(userPointPayload);
+    });
+  }
+
   //to change the user register data into token
   async register(payload: RegisterDto): Promise<any> {
     const { username, organization, password, email, phone_number, fullname, pin, nik } = payload;
@@ -49,11 +83,15 @@ export class AuthService {
         organization: user.organization,
         sub: user.id,
       };
+
+      // Issuing Token Air Drop for New User
+      await this.issuingTokenAirDrop(username, phone_number);
+
       return {
-        usernameTrimmed,
+        username: usernameTrimmed,
         email,
         phone_number,
-        access_token: this.jwtService.sign(jwtPayload),
+        access_token: this.jwtService.sign(jwtPayload)
       };
     } catch (error) {
       throw error;
