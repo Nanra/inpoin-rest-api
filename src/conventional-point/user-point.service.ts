@@ -123,7 +123,7 @@ export class UserPointService {
 
     let resultSet: UserPointsDto[] = [];
 
-    const queryResult = await this.connection.query(`select up.id, up.username, up.phone_number, up.point_id, up.token_id, up.paired, up.paired_at, up.issued_at, p.point_name, p.point_logo_url, p.exchange_rate, p.min_token_transaction from user_point up left join point p on up.point_id = p.id where up.username = '${username}' order by up.token_id desc;`);
+    const queryResult = await this.connection.query(`select up.id, up.username, up.phone_number, up.point_id, up.token_id, up.paired, up.paired_at, up.issued_at, p.point_name, p.point_logo_url, p.exchange_rate, p.min_token_transaction from user_point up left join point p on up.point_id = p.id where up.username = '${username}' order by up.token_id asc;`);
     
     for (let index = 0; index < queryResult.length; index++) {
       const element = queryResult[index];
