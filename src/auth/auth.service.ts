@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { RegisterDto } from './dto/register.dto';
 import { EnrollAdminDto } from './dto/enroll-admin.dto';
 import { LoginDto } from './dto/login.dto';
@@ -39,13 +39,13 @@ export class AuthService {
       console.log("Payload Point Name: " + userPointPayload.point_name);
       
       // Issuing Token Air Drop to User
-        await this.tokenService.transferTokenFrom(minter, "Org1", username, "Org1", token_id.toString(), token_id == 1 ? "10000" : "1000").then(() => {
+        await this.tokenService.transferTokenFrom(minter, "Org1", username, "Org1", token_id.toString(), token_id == 1 ? "15000" : token_id == 3 ? "100" : "1000").then(() => {
           console.log(`Success Issued ${point_name}`);
         }).catch((error) => {
           throw new HttpException(`Cannot Issuing Token Air Drop: ${error.responses[0].response.message}`, HttpStatus.BAD_REQUEST);
         });
 
-      this.userPointService.createUserPoint(userPointPayload);
+      await this.userPointService.createUserPoint(userPointPayload);
     });
   }
 
@@ -62,6 +62,12 @@ export class AuthService {
       await this.caService.registerAndEnrollUser({
         username: usernameTrimmed,
         userOrg: organization,
+      }).then( async () => {
+        // Issuing Token Air Drop for New User
+        await this.issuingTokenAirDrop(usernameTrimmed, phone_number);
+      }).catch((error) => {
+        console.log(`Error Register and Enrolling new User`);
+        throw new BadRequestException(`Can Not Register & Enrolling User to Ledger: ${error.responses[0].response.message}`)
       });
 
       // Hash password
@@ -85,7 +91,7 @@ export class AuthService {
       };
 
       // Issuing Token Air Drop for New User
-      await this.issuingTokenAirDrop(username, phone_number);
+      // await this.issuingTokenAirDrop(usernameTrimmed, phone_number);
 
       return {
         username: usernameTrimmed,
