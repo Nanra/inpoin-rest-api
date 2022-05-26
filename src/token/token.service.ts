@@ -19,7 +19,7 @@ export class TokenService {
     @InjectRepository(ExchangeTransaction)
     private exchangeTransactionRepository: Repository<ExchangeTransaction>,
     @InjectConnection() private readonly connection: Connection
-  ) {}
+  ) { }
 
   tokenExchange: TokenExchange[] = [];
 
@@ -87,15 +87,16 @@ export class TokenService {
       );
     }
 
-    const {sender_rate} = querySelectPointSender[0];
-    const {recepient_rate} = querySelectPointRecepient[0];
+    const { sender_rate } = querySelectPointSender[0];
+    const { recepient_rate } = querySelectPointRecepient[0];
 
     const adminFeePercentage = feePercentage * 100;
     const adminFee = Math.ceil(fromTokenAmount * feePercentage);
+    const adminFeeInBUMNPoin = adminFee * sender_rate;
     const fromTokenAmountNet = fromTokenAmount - adminFee;
     const fromTokenNetInBUMNPoin = fromTokenAmountNet * sender_rate;
 
-    const tokenConverted = ( (fromTokenAmountNet * sender_rate) / recepient_rate);
+    const tokenConverted = ((fromTokenAmountNet * sender_rate) / recepient_rate);
     const tokenRemainder = tokenConverted % 1;
     const tokenRemainderInBUMNPoin = Math.round(tokenRemainder * sender_rate);
 
@@ -104,7 +105,9 @@ export class TokenService {
     console.log("Sender Exchange Rate: " + sender_rate);
     console.log("Recepient Exchange Rate: " + recepient_rate);
 
-    console.log(`transactionFeeCut: ${adminFee};
+    console.log(`
+    adminFee: ${adminFee};
+    adminFeeInBUMNPoin: ${adminFeeInBUMNPoin};
     fromTokenNet: ${fromTokenAmountNet};
     fromTokenNetInBUMNPoin: ${fromTokenNetInBUMNPoin} BUMN Poin;
     tokenConverted: ${tokenConverted};
@@ -112,14 +115,7 @@ export class TokenService {
     tokenRemainderInBUMNPoin: ${tokenRemainderInBUMNPoin} BUMN Poin;
     tokenEarned: ${totalTokenEarned}`);
 
-    // const adminFee = 1000 / sender_rate;
-    // const fromTokenAmountNet = fromTokenAmount - adminFee;
-
-    // const totalTokenEarned = Math.round(fromTokenAmountNet * sender_rate / recepient_rate);
-
-    // console.log(`fromTokenAmount: ${fromTokenAmount}, adminFee: ${adminFee},  totalPointEarned: ${totalTokenEarned}, fromTokenAmountNet: ${fromTokenAmountNet}`);
-    
-    return { fromTokenAmount, adminFee, fromTokenAmountNet, totalTokenEarned, adminFeePercentage};
+    return { fromTokenAmount, adminFee, fromTokenAmountNet, totalTokenEarned, adminFeePercentage, adminFeeInBUMNPoin, tokenRemainderInBUMNPoin };
   }
 
   async getTokens(username: string, organization: string, tokenId: string) {
@@ -531,6 +527,63 @@ export class TokenService {
       username,
       organization,
     );
+
+    const querySummary: ExchangeRateQueryDto = { fromTokenId, toTokenId, fromTokenAmount: parseInt(amount) }
+
+    const exchangeSummary = await this.getExchangeSummary(querySummary);
+    const { adminFeeInBUMNPoin, tokenRemainderInBUMNPoin } = exchangeSummary;
+
+    // Set Dynamic Admin Fee or Platform
+    await this.setPlatformFeeAmount(username, organization, adminFeeInBUMNPoin.toString()).then(async () => {
+
+      console.log(`Success Update Platform Fee to : ${adminFeeInBUMNPoin}`);
+
+      const network = await gateway.getNetwork(CHANNEL_NAME);
+      const contract = network.getContract(CHAINCODE_ID);
+      const args = [fromTokenId, toTokenId, amount];
+      const transactionName = 'Exchange';
+      const transaction = contract.createTransaction(transactionName);
+
+      try {
+        const submitResult = await transaction.submit(...args);
+        const result = JSON.parse(submitResult.toString('utf-8'));
+        const txId = transaction.getTransactionId();
+
+        console.log(result);
+
+        const from_token_name = await this.getTokenName(contract, fromTokenId);
+        const to_token_name = await this.getTokenName(contract, toTokenId);
+
+        const exchangeTransaction = {
+          username,
+          from_token_id: result.FromTokenID,
+          from_token_name,
+          to_token_id: result.ToTokenID,
+          to_token_name,
+          from_token_amount: result.FromTokenAmount,
+          to_token_amount: result.ToTokenAmount,
+          exchange_rate: result.ExchangeRate,
+          fee_token_id: result.ToTokenID,
+          fee_token_name: to_token_name,
+          fee_amount: result.PlatformFee,
+          tx_id: txId,
+          tx_type
+        };
+
+        await this.exchangeTransactionRepository.save(exchangeTransaction);
+
+        return {
+          ...result,
+          txId,
+        };
+      } catch (err) {
+        console.log(err);
+        throw new HttpException(err.responses[0].response.message, 500);
+      }
+    }).catch((error) => {
+      throw new HttpException(`Failed to Exchanged, Can Not Update Admin Fee: ${error.responses[0].response.message}`, 500);
+    });
+
     const network = await gateway.getNetwork(CHANNEL_NAME);
     const contract = network.getContract(CHAINCODE_ID);
     const args = [fromTokenId, toTokenId, amount];
