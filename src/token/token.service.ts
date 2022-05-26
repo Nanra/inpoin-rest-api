@@ -115,7 +115,7 @@ export class TokenService {
     tokenRemainderInBUMNPoin: ${tokenRemainderInBUMNPoin} BUMN Poin;
     tokenEarned: ${totalTokenEarned}`);
 
-    return { fromTokenAmount, adminFee, fromTokenAmountNet, totalTokenEarned, adminFeePercentage, adminFeeInBUMNPoin, tokenRemainderInBUMNPoin };
+    return { fromTokenAmount, adminFee, fromTokenAmountNet, totalTokenEarned, adminFeePercentage, adminFeeInBUMNPoin, tokenRemainderInBUMNPoin, sender_rate, recepient_rate };
   }
 
   async getTokens(username: string, organization: string, tokenId: string) {
@@ -531,7 +531,7 @@ export class TokenService {
     const querySummary: ExchangeRateQueryDto = { fromTokenId, toTokenId, fromTokenAmount: parseInt(amount) }
 
     const exchangeSummary = await this.getExchangeSummary(querySummary);
-    const { adminFeeInBUMNPoin, tokenRemainderInBUMNPoin } = exchangeSummary;
+    const { adminFee, totalTokenEarned, adminFeeInBUMNPoin, sender_rate } = exchangeSummary;
 
     // Set Dynamic Admin Fee or Platform
     await this.setPlatformFeeAmount(username, organization, adminFeeInBUMNPoin.toString()).then(async () => {
@@ -556,16 +556,16 @@ export class TokenService {
 
         const exchangeTransaction = {
           username,
-          from_token_id: result.FromTokenID,
+          from_token_id: parseInt(fromTokenId),
           from_token_name,
-          to_token_id: result.ToTokenID,
+          to_token_id: parseInt(toTokenId),
           to_token_name,
-          from_token_amount: result.FromTokenAmount,
-          to_token_amount: result.ToTokenAmount,
-          exchange_rate: result.ExchangeRate,
-          fee_token_id: result.ToTokenID,
+          from_token_amount: parseInt(amount),
+          to_token_amount: totalTokenEarned,
+          exchange_rate: parseInt(sender_rate),
+          fee_token_id: parseInt(toTokenId),
           fee_token_name: to_token_name,
-          fee_amount: result.PlatformFee,
+          fee_amount: adminFee,
           tx_id: txId,
           tx_type
         };
@@ -573,9 +573,15 @@ export class TokenService {
         await this.exchangeTransactionRepository.save(exchangeTransaction);
 
         return {
-          ...result,
+          FromTokenID: fromTokenId,
+          FromTokenAmount: amount,
+          ToTokenID: toTokenId,
+          ToTokenAmount: totalTokenEarned,
+          ExchangeRate: sender_rate,
+          PlatformFee: adminFee,
           txId,
         };
+
       } catch (err) {
         console.log(err);
         throw new HttpException(err.responses[0].response.message, 500);
@@ -583,49 +589,6 @@ export class TokenService {
     }).catch((error) => {
       throw new HttpException(`Failed to Exchanged, Can Not Update Admin Fee: ${error.responses[0].response.message}`, 500);
     });
-
-    const network = await gateway.getNetwork(CHANNEL_NAME);
-    const contract = network.getContract(CHAINCODE_ID);
-    const args = [fromTokenId, toTokenId, amount];
-    const transactionName = 'Exchange';
-    const transaction = contract.createTransaction(transactionName);
-
-    try {
-      const submitResult = await transaction.submit(...args);
-      const result = JSON.parse(submitResult.toString('utf-8'));
-      const txId = transaction.getTransactionId();
-
-      console.log(result);
-
-      const from_token_name = await this.getTokenName(contract, fromTokenId);
-      const to_token_name = await this.getTokenName(contract, toTokenId);
-
-      const exchangeTransaction = {
-        username,
-        from_token_id: result.FromTokenID,
-        from_token_name,
-        to_token_id: result.ToTokenID,
-        to_token_name,
-        from_token_amount: result.FromTokenAmount,
-        to_token_amount: result.ToTokenAmount,
-        exchange_rate: result.ExchangeRate,
-        fee_token_id: result.ToTokenID,
-        fee_token_name: to_token_name,
-        fee_amount: result.PlatformFee,
-        tx_id: txId,
-        tx_type
-      };
-
-      await this.exchangeTransactionRepository.save(exchangeTransaction);
-
-      return {
-        ...result,
-        txId,
-      };
-    } catch (err) {
-      console.log(err);
-      throw new HttpException(err.responses[0].response.message, 500);
-    }
   }
 
   async getTransactionHistory(username: string, limit: number) {
