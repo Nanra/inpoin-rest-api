@@ -7,6 +7,7 @@ import { InjectConnection, InjectRepository } from '@nestjs/typeorm';
 import { ExchangeTransaction } from './echange-transaction.entity';
 import { Connection, Repository } from 'typeorm';
 import { Contract } from 'fabric-network';
+import { RedeemHistoryDto } from './dto/redeem-history-dto';
 
 const CHANNEL_NAME = 'inpoinchannel';
 const CHAINCODE_ID = 'lp'; // name of the chaincode
@@ -595,6 +596,16 @@ export class TokenService {
 
     return returnValue;
 
+  }
+
+  async redeemHistory(data: RedeemHistoryDto) {
+    const {username, from_token_id, from_token_name, to_token_id, to_token_name, from_token_amount, to_token_amount, tx_type} = data;
+    const insertHistoryQuery = `INSERT INTO public.exchange_transaction
+    (username, from_token_id, from_token_name, to_token_id, to_token_name, fee_token_id, fee_token_name, tx_id, created_at, from_token_amount, to_token_amount, exchange_rate, fee_amount, tx_type)
+    VALUES('${username}', ${from_token_id}, '${from_token_name}', ${to_token_id}, '${to_token_name}', 0, '', '', now(), ${from_token_amount}, ${to_token_amount}, 0, 0, '${tx_type}');
+    `;
+    const queryResult = await this.connection.query(insertHistoryQuery);
+    return queryResult;
   }
 
   async getTransactionHistory(username: string, limit: number) {

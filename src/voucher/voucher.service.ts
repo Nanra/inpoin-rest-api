@@ -1,5 +1,6 @@
 import { BadRequestException, HttpException, HttpStatus } from "@nestjs/common";
 import { InjectConnection, InjectRepository } from "@nestjs/typeorm";
+import { RedeemHistoryDto } from "src/token/dto/redeem-history-dto";
 import { TokenService } from "src/token/token.service";
 import { Connection, Repository } from "typeorm";
 import { CreateVoucherUserDto } from "./dto/create-voucher-user.dto";
@@ -93,6 +94,8 @@ export class VoucherService {
     const organization = "Org1";
     const tx_type = "redeem";
 
+    let bumnRedeemHistory: RedeemHistoryDto;
+
     let totalBUMNPoin: number = 0;
 
     try {
@@ -109,6 +112,18 @@ export class VoucherService {
         // BUMN Poin Calculation
         if (element.token_id === parseInt(bumnPoinTokenId)) {
           totalBUMNPoin = totalBUMNPoin + (element.amount * element.exchange_rate);
+
+          bumnRedeemHistory = {
+            username: username,
+            from_token_amount: element.amount,
+            from_token_name: "BUMNPoin",
+            from_token_id: element.token_id,
+            to_token_amount: element.amount,
+            to_token_id: element.token_id,
+            to_token_name: "BUMNPoin",
+            tx_type: "redeem"
+          }
+
           continue
         }
 
@@ -146,7 +161,10 @@ export class VoucherService {
       
 
       // Submit Transfer BUMN Token to Merchant
-      await this.tokenService.transferTokenFrom(username, organization, provider_id, organization, bumnPoinTokenId, totalBUMNPoin.toString()).catch((error) => {
+      await this.tokenService.transferTokenFrom(username, organization, provider_id, organization, bumnPoinTokenId, totalBUMNPoin.toString()).then(async () => {
+        await this.tokenService.redeemHistory(bumnRedeemHistory);
+        console.log(`Success Save BUMN Poin Redeem History`);
+      }).catch((error) => {
         throw new BadRequestException(`Cannot Execute transferTokenFrom: ${error.responses[0].response.message}`);
       });
 
