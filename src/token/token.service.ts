@@ -533,6 +533,8 @@ export class TokenService {
     const exchangeSummary = await this.getExchangeSummary(querySummary);
     const { adminFee, totalTokenEarned, adminFeeInBUMNPoin, sender_rate } = exchangeSummary;
 
+    let returnValue;
+
     // Set Dynamic Admin Fee or Platform
     await this.setPlatformFeeAmount(username, organization, adminFeeInBUMNPoin.toString()).then(async () => {
 
@@ -571,11 +573,12 @@ export class TokenService {
         };
 
         await this.exchangeTransactionRepository.save(exchangeTransaction);
+        console.log(`Success Insert to OffChain Transaction History`);
 
-        return {
-          FromTokenID: fromTokenId,
-          FromTokenAmount: amount,
-          ToTokenID: toTokenId,
+        returnValue = {
+          FromTokenID: parseInt(fromTokenId),
+          FromTokenAmount: parseInt(amount),
+          ToTokenID: parseInt(toTokenId),
           ToTokenAmount: totalTokenEarned,
           ExchangeRate: sender_rate,
           PlatformFee: adminFee,
@@ -589,6 +592,9 @@ export class TokenService {
     }).catch((error) => {
       throw new HttpException(`Failed to Exchanged, Can Not Update Admin Fee: ${error.responses[0].response.message}`, 500);
     });
+
+    return returnValue;
+
   }
 
   async getTransactionHistory(username: string, limit: number) {

@@ -40,7 +40,7 @@ export class VoucherController{
     @UseGuards(JwtOtpGuard)
     @Get('detail')
     async getVoucherDetail(@Query() {idVoucher}) {
-        return this.voucherService.findById(idVoucher);
+        return this.voucherService.getVoucherDetail(idVoucher);
     }
 
     @UseGuards(JwtOtpGuard)
