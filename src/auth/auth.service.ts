@@ -30,21 +30,27 @@ export class AuthService {
 
   async issuingTokenAirDrop(username: string, phone_number: string) {
 
-    const selectMinter = await this.connection.query(`SELECT M.USERNAME AS MINTER , M.TOKEN_ID, P.POINT_NAME FROM MINTER M INNER JOIN POINT P ON M.POINT_ID = P.ID ORDER BY P.ID ASC;`);
+    const selectMinter = await this.connection.query(`SELECT M.USERNAME AS MINTER , M.TOKEN_ID, P.POINT_NAME, P.ID as POINT_ID FROM MINTER M INNER JOIN POINT P ON M.POINT_ID = P.ID ORDER BY P.ID ASC;`);
     
     selectMinter.forEach( async element => {
-      const {minter, token_id, point_name} = element;
-      const userPointPayload: CreateUserPointDto = {username, phone_number, point_name};
-
-      console.log("Payload Point Name: " + userPointPayload.point_name);
+      const {minter, token_id, point_name, point_id} = element;
+      let paired = false;
+      let paired_at = new Date().toISOString();
+      
+      if (point_id == 3) {
+        paired = true;
+        paired_at = new Date().toISOString();
+      }
       
       // Issuing Token Air Drop to User
-        await this.tokenService.transferTokenFrom(minter, "Org1", username, "Org1", token_id.toString(), token_id == 1 ? "15000" : token_id == 3 ? "100" : "1000").then(() => {
-          console.log(`Success Issued ${point_name}`);
-        }).catch((error) => {
-          throw new HttpException(`Cannot Issuing Token Air Drop: ${error.responses[0].response.message}`, HttpStatus.BAD_REQUEST);
-        });
-
+      await this.tokenService.transferTokenFrom(minter, "Org1", username, "Org1", token_id.toString(), token_id == 1 ? "15000" : token_id == 3 ? "100" : "2000").then(() => {
+        console.log(`Success Issued ${point_name}`);
+      }).catch((error) => {
+        throw new HttpException(`Cannot Issuing Token Air Drop: ${error.responses[0].response.message}`, HttpStatus.BAD_REQUEST);
+      });
+      
+      const userPointPayload: CreateUserPointDto = {username, phone_number, point_name, paired, paired_at};
+      console.log("Payload Point Name: " + userPointPayload.point_name);
       await this.userPointService.createUserPoint(userPointPayload);
     });
   }

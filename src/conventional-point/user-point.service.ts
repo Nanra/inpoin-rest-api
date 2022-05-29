@@ -29,7 +29,7 @@ export class UserPointService {
 
       //creating a new user, storing user data, finding exixting user
   async createUserPoint(payload: CreateUserPointDto): Promise<UserPoint> {
-    const { username, phone_number, point_name } = payload;
+    const { username, phone_number, point_name, paired, paired_at } = payload;
 
     const existingPoint = await this.findPointByName(point_name);  
     
@@ -56,7 +56,8 @@ export class UserPointService {
       phone_number,
       point_id: existingPoint.id,
       token_id: existingPoint.token_id,
-      paired: false,
+      paired,
+      paired_at,
       issued_at:  new Date().toISOString()
     });
 
