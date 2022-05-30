@@ -124,14 +124,26 @@ export class UserPointService {
 
     let resultSet: UserPointsDto[] = [];
 
-    const queryResult = await this.connection.query(`select up.id, up.username, up.phone_number, up.point_id, up.token_id, up.paired, up.paired_at, up.issued_at, p.point_name, p.point_logo_url, p.exchange_rate, p.min_token_transaction from user_point up left join point p on up.point_id = p.id where up.username = '${username}' order by up.token_id asc;`);
-    
+    const queryResult = await this.connection.query(`select up.id, up.username, up.phone_number, up.point_id, up.token_id, up.amount, up.paired, up.paired_at, up.issued_at, up.updated_at, up.token_synced, p.point_name, p.point_logo_url, p.exchange_rate, p.min_token_transaction from user_point up left join point p on up.point_id = p.id where up.username = '${username}' order by up.token_id asc;`);
+
     for (let index = 0; index < queryResult.length; index++) {
       const element = queryResult[index];
 
+      // console.log(element);
+      // console.log(element.token_synced);
+      // console.log(element.amount);
+      
       resultSet.push(element);
-      // console.log(`Usernamer: ${element.username} , Token ID: ${element.token_id.toString()}`);
-      resultSet[index].amount = await this.getClientAccountBalance(element.username, 'Org1', element.token_id.toString());
+      
+      if ((element.amount <= 0) && (element.token_synced == false)) {
+        console.log(`Point ${element.point_name} dengan ID token ${element.token_id} belum Sinkron dengan Blockchain`);
+        const tokenBalance = await this.getClientAccountBalance(username, 'Org1', element.token_id.toString());
+        console.log(`On Chain Balance: ${tokenBalance}`);
+        
+        this.updateClientAccountBalance(username, tokenBalance, element.token_id);
+        resultSet[index].amount = tokenBalance;
+      }
+      
     }
 
     return resultSet;
@@ -151,6 +163,12 @@ export class UserPointService {
     });
 
     return result;
+  }
+
+  async updateClientAccountBalance(username: string, amount: number, token_id: number) {
+    const nowDate = new Date().toISOString();
+        const queryUpdateBalance = this.connection.query(`update public.user_point set amount = ${amount}, token_synced = true, updated_at = '${nowDate}' where username = '${username}' and token_id = ${token_id};`);
+        return queryUpdateBalance;
   }
 
 

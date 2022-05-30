@@ -95,6 +95,7 @@ export class VoucherService {
     const tx_type = "redeem";
 
     let bumnRedeemHistory: RedeemHistoryDto;
+    let bumnPoinRedeemed: boolean = false;
 
     let totalBUMNPoin: number = 0;
 
@@ -123,7 +124,7 @@ export class VoucherService {
             to_token_name: "BUMNPoin",
             tx_type: "redeem"
           }
-
+          bumnPoinRedeemed = true;
           continue
         }
 
@@ -162,8 +163,11 @@ export class VoucherService {
 
       // Submit Transfer BUMN Token to Merchant
       await this.tokenService.transferTokenFrom(username, organization, provider_id, organization, bumnPoinTokenId, totalBUMNPoin.toString()).then(async () => {
-        await this.tokenService.redeemHistory(bumnRedeemHistory);
-        console.log(`Success Save BUMN Poin Redeem History`);
+        if(bumnPoinRedeemed) {
+          await this.tokenService.redeemHistory(bumnRedeemHistory);
+          console.log(`Success Save BUMN Poin Redeem History`);
+        }
+        console.log(`Success Transfer Poin to Merchant, But BUMN Poin not included in this Transaction`);
       }).catch((error) => {
         throw new BadRequestException(`Cannot Execute transferTokenFrom: ${error.responses[0].response.message}`);
       });
