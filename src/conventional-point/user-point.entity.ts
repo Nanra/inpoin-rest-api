@@ -27,4 +27,13 @@ export class UserPoint {
   @Column({ type: 'timestamp', nullable: true })
   issued_at: Date | string;
 
+  @Column()
+  amount: number;
+
+  @Column({ type: 'timestamp', nullable: true })
+  updated_at: Date | string;
+
+  @Column()
+  token_synced: Boolean;
+
 }

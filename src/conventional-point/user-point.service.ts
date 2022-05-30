@@ -29,7 +29,7 @@ export class UserPointService {
 
       //creating a new user, storing user data, finding exixting user
   async createUserPoint(payload: CreateUserPointDto): Promise<UserPoint> {
-    const { username, phone_number, point_name } = payload;
+    const { username, phone_number, point_name, paired, paired_at, amount } = payload;
 
     const existingPoint = await this.findPointByName(point_name);  
     
@@ -56,8 +56,12 @@ export class UserPointService {
       phone_number,
       point_id: existingPoint.id,
       token_id: existingPoint.token_id,
-      paired: false,
-      issued_at:  new Date().toISOString()
+      paired,
+      paired_at,
+      issued_at:  new Date().toISOString(),
+      amount,
+      updated_at: new Date().toISOString(),
+      token_synced: true
     });
 
     return created;
@@ -123,14 +127,24 @@ export class UserPointService {
 
     let resultSet: UserPointsDto[] = [];
 
-    const queryResult = await this.connection.query(`select up.id, up.username, up.phone_number, up.point_id, up.token_id, up.paired, up.paired_at, up.issued_at, p.point_name, p.point_logo_url, p.exchange_rate, p.min_token_transaction from user_point up left join point p on up.point_id = p.id where up.username = '${username}' order by up.token_id asc;`);
-    
+    const queryResult = await this.connection.query(`select up.id, up.username, up.phone_number, up.point_id, up.token_id, up.amount, up.paired, up.paired_at, up.issued_at, up.updated_at, up.token_synced, p.point_name, p.point_logo_url, p.exchange_rate, p.min_token_transaction from user_point up left join point p on up.point_id = p.id where up.username = '${username}' order by up.token_id asc;`);
+
     for (let index = 0; index < queryResult.length; index++) {
       const element = queryResult[index];
-
+      
       resultSet.push(element);
-      // console.log(`Usernamer: ${element.username} , Token ID: ${element.token_id.toString()}`);
-      resultSet[index].amount = await this.getClientAccountBalance(element.username, 'Org1', element.token_id.toString());
+
+      if ((element.amount <= 0) && (element.token_synced == false)) {
+        console.log(`Point ${element.point_name} dengan ID token ${element.token_id} belum Sinkron dengan Blockchain`);
+        const tokenBalance = await this.getClientAccountBalance(username, 'Org1', element.token_id.toString());
+        console.log(`On Chain Balance: ${tokenBalance}`);
+        
+        this.updateClientAccountBalance(username, tokenBalance, element.token_id);
+        resultSet[index].amount = tokenBalance;
+        console.log(`Success Update User Balance to Off-chain`);
+        
+      }
+      
     }
 
     return resultSet;
@@ -150,6 +164,21 @@ export class UserPointService {
     });
 
     return result;
+  }
+
+  async updateClientAccountBalance(username: string, amount: number, token_id: number) {
+    const nowDate = new Date().toISOString();
+        const queryUpdateBalance = this.connection.query(`update public.user_point set amount = ${amount}, token_synced = true, updated_at = '${nowDate}' where username = '${username}' and token_id = ${token_id};`);
+        console.log(`Success Update User Balance off-chain on Synchronized`);
+        return queryUpdateBalance;
+  }
+
+  async updateClientAccountBalanceExchange(username: string, from_token_amount: number, from_token_id: number, to_token_amount: number, to_token_id: number) {
+    const nowDate = new Date().toISOString();
+        await this.connection.query(`update public.user_point set amount = (((select up.amount from user_point up where up.username = '${username}' and up.token_id = ${from_token_id})) - ${from_token_amount}), token_synced = true, updated_at = '${nowDate}' where username = '${username}' and token_id = ${from_token_id};`);
+        await this.connection.query(`update public.user_point set amount = (((select up.amount from user_point up where up.username = '${username}' and up.token_id = ${to_token_id})) + ${to_token_amount}), token_synced = true, updated_at = '${nowDate}' where username = '${username}' and token_id = ${to_token_id};`);
+        console.log(`Success Update User Balance off-chain on Exchange`);
+        return `Success Update Exchange Balance`;
   }
 
 
