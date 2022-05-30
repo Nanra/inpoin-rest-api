@@ -172,6 +172,14 @@ export class UserPointService {
         return queryUpdateBalance;
   }
 
+  async updateClientAccountBalanceExchange(username: string, from_token_amount: number, from_token_id: number, to_token_amount: number, to_token_id: number) {
+    const nowDate = new Date().toISOString();
+        await this.connection.query(`update public.user_point set amount = (((select up.amount from user_point up where up.username = '${username}' and up.token_id = ${from_token_id})) - ${from_token_amount}), token_synced = true, updated_at = '${nowDate}' where username = '${username}' and token_id = ${from_token_id};`);
+        await this.connection.query(`update public.user_point set amount = (((select up.amount from user_point up where up.username = '${username}' and up.token_id = ${to_token_id})) + ${to_token_amount}), token_synced = true, updated_at = '${nowDate}' where username = '${username}' and token_id = ${to_token_id};`);
+        console.log(`Success Update User Balance off-chain`);
+        return `Success Update Exchange Balance`;
+  }
+
 
   // Fabric Method
   async getClientAccountBalance(

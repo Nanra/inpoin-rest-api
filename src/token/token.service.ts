@@ -8,6 +8,7 @@ import { ExchangeTransaction } from './echange-transaction.entity';
 import { Connection, Repository } from 'typeorm';
 import { Contract } from 'fabric-network';
 import { RedeemHistoryDto } from './dto/redeem-history-dto';
+import { UserPointService } from 'src/conventional-point/user-point.service';
 
 const CHANNEL_NAME = 'inpoinchannel';
 const CHAINCODE_ID = 'lp'; // name of the chaincode
@@ -17,6 +18,7 @@ export class TokenService {
   constructor(
     private fabricGatewayService: FabricGatewayService,
     private userService: UsersService,
+    private userPointService: UserPointService,
     @InjectRepository(ExchangeTransaction)
     private exchangeTransactionRepository: Repository<ExchangeTransaction>,
     @InjectConnection() private readonly connection: Connection
@@ -574,7 +576,8 @@ export class TokenService {
         };
 
         await this.exchangeTransactionRepository.save(exchangeTransaction);
-        console.log(`Success Insert to OffChain Transaction History`);
+        this.userPointService.updateClientAccountBalanceExchange(username, parseInt(amount), parseInt(fromTokenId), totalTokenEarned, parseInt(toTokenId));
+        console.log(`Success Insert & Update Account Balance to OffChain Transaction History`);
 
         returnValue = {
           FromTokenID: parseInt(fromTokenId),
