@@ -24,8 +24,6 @@ export class AuthService {
     private readonly userPointService: UserPointService,
     private readonly tokenService: TokenService,
 
-
-
   ) {}
 
   async issuingTokenAirDrop(username: string, phone_number: string) {
@@ -61,16 +59,22 @@ export class AuthService {
 
     const usernameTrimmed = username.replace(' ', '').toLowerCase();
 
+    const user = await this.usersService.findOne(email, organization);
+
+    if (user) {
+      throw new HttpException(`Email Already Registered`, HttpStatus.UNAUTHORIZED);
+    }
+
     try {
       // Register, and Enroll user to Certificate Authority
       // Enrollment identity is saved to filesystem Wallet
       // TODO: Refactor wallet interaction to own module
       await this.caService.registerAndEnrollUser({
-        username: usernameTrimmed,
+        username: email,
         userOrg: organization,
       }).then( async () => {
         // Issuing Token Air Drop for New User
-        await this.issuingTokenAirDrop(usernameTrimmed, phone_number);
+        await this.issuingTokenAirDrop(email, phone_number);
       }).catch((error) => {
         console.log(`Error Register and Enrolling new User`);
         throw new BadRequestException(`Can Not Register & Enrolling User to Ledger: ${error.responses[0].response.message}`)
@@ -80,7 +84,7 @@ export class AuthService {
       // Save username and hashed password to DB
       const hash = await bcrypt.hash(password, saltOrRounds);
       const user = await this.usersService.create({
-        username: usernameTrimmed,
+        username: email,
         password: hash,
         nik,
         pin,
@@ -91,20 +95,19 @@ export class AuthService {
       });
       // return jwt
       const jwtPayload = {
-        username: usernameTrimmed,
+        username: email,
         organization: user.organization,
         sub: user.id,
       };
 
-      // Issuing Token Air Drop for New User
-      // await this.issuingTokenAirDrop(usernameTrimmed, phone_number);
-
       return {
-        username: usernameTrimmed,
+        username: email,
+        fullname,
         email,
         phone_number,
         access_token: this.jwtService.sign(jwtPayload)
       };
+
     } catch (error) {
       throw error;
     }
@@ -137,16 +140,17 @@ export class AuthService {
     
     if (user) {
 
-      const {id, username, organization} = user;
+      const {id, username, organization, fullname, email} = user;
 
       const jwtPayload = {
-        username: username,
+        username: email,
         organization: organization,
         sub: id,
       };
 
       return {
-        username: username,
+        username: email,
+        fullname,
         access_token: this.jwtService.sign(jwtPayload)
       };
     }
