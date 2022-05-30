@@ -169,6 +169,7 @@ export class UserPointService {
   async updateClientAccountBalance(username: string, amount: number, token_id: number) {
     const nowDate = new Date().toISOString();
         const queryUpdateBalance = this.connection.query(`update public.user_point set amount = ${amount}, token_synced = true, updated_at = '${nowDate}' where username = '${username}' and token_id = ${token_id};`);
+        console.log(`Success Update User Balance off-chain on Synchronized`);
         return queryUpdateBalance;
   }
 
@@ -176,7 +177,7 @@ export class UserPointService {
     const nowDate = new Date().toISOString();
         await this.connection.query(`update public.user_point set amount = (((select up.amount from user_point up where up.username = '${username}' and up.token_id = ${from_token_id})) - ${from_token_amount}), token_synced = true, updated_at = '${nowDate}' where username = '${username}' and token_id = ${from_token_id};`);
         await this.connection.query(`update public.user_point set amount = (((select up.amount from user_point up where up.username = '${username}' and up.token_id = ${to_token_id})) + ${to_token_amount}), token_synced = true, updated_at = '${nowDate}' where username = '${username}' and token_id = ${to_token_id};`);
-        console.log(`Success Update User Balance off-chain`);
+        console.log(`Success Update User Balance off-chain on Exchange`);
         return `Success Update Exchange Balance`;
   }
 

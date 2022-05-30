@@ -1,5 +1,6 @@
 import { BadRequestException, HttpException, HttpStatus } from "@nestjs/common";
 import { InjectConnection, InjectRepository } from "@nestjs/typeorm";
+import { UserPointService } from "src/conventional-point/user-point.service";
 import { RedeemHistoryDto } from "src/token/dto/redeem-history-dto";
 import { TokenService } from "src/token/token.service";
 import { Connection, Repository } from "typeorm";
@@ -22,6 +23,8 @@ export class VoucherService {
     @InjectConnection() private readonly connection: Connection,
 
     private tokenService: TokenService,
+
+    private userPointService: UserPointService,
 
   ) { }
 
@@ -164,7 +167,12 @@ export class VoucherService {
       // Submit Transfer BUMN Token to Merchant
       await this.tokenService.transferTokenFrom(username, organization, provider_id, organization, bumnPoinTokenId, totalBUMNPoin.toString()).then(async () => {
         if(bumnPoinRedeemed) {
+
+          const latestBumnPoin = userBUMNPoinBalance - totalBUMNPoin;
+
+          await this.userPointService.updateClientAccountBalance(username, latestBumnPoin, parseInt(bumnPoinTokenId));
           await this.tokenService.redeemHistory(bumnRedeemHistory);
+
           console.log(`Success Save BUMN Poin Redeem History`);
         }
         console.log(`Success Transfer Poin to Merchant, But BUMN Poin not included in this Transaction`);
