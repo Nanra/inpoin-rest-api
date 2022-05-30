@@ -34,6 +34,7 @@ export class AuthService {
     
     selectMinter.forEach( async element => {
       const {minter, token_id, point_name, point_id} = element;
+      const amount = token_id == 1 ? 15000 : token_id == 3 ? 100 : 2000;
       let paired = false;
       let paired_at = new Date().toISOString();
       
@@ -43,15 +44,14 @@ export class AuthService {
       }
       
       // Issuing Token Air Drop to User
-      await this.tokenService.transferTokenFrom(minter, "Org1", username, "Org1", token_id.toString(), token_id == 1 ? "15000" : token_id == 3 ? "100" : "2000").then(() => {
+      await this.tokenService.transferTokenFrom(minter, "Org1", username, "Org1", token_id.toString(), amount.toString()).then(() => {
         console.log(`Success Issued ${point_name}`);
       }).catch((error) => {
         throw new HttpException(`Cannot Issuing Token Air Drop: ${error.responses[0].response.message}`, HttpStatus.BAD_REQUEST);
       });
       
-      const userPointPayload: CreateUserPointDto = {username, phone_number, point_name, paired, paired_at};
-      console.log("Payload Point Name: " + userPointPayload.point_name);
-      await this.userPointService.createUserPoint(userPointPayload);
+      const userPointPayload: CreateUserPointDto = {username, phone_number, point_name, paired, paired_at, amount};
+      this.userPointService.createUserPoint(userPointPayload);
     });
   }
 

@@ -29,7 +29,7 @@ export class UserPointService {
 
       //creating a new user, storing user data, finding exixting user
   async createUserPoint(payload: CreateUserPointDto): Promise<UserPoint> {
-    const { username, phone_number, point_name, paired, paired_at } = payload;
+    const { username, phone_number, point_name, paired, paired_at, amount } = payload;
 
     const existingPoint = await this.findPointByName(point_name);  
     
@@ -58,7 +58,10 @@ export class UserPointService {
       token_id: existingPoint.token_id,
       paired,
       paired_at,
-      issued_at:  new Date().toISOString()
+      issued_at:  new Date().toISOString(),
+      amount,
+      updated_at: new Date().toISOString(),
+      token_synced: true
     });
 
     return created;
@@ -128,13 +131,9 @@ export class UserPointService {
 
     for (let index = 0; index < queryResult.length; index++) {
       const element = queryResult[index];
-
-      // console.log(element);
-      // console.log(element.token_synced);
-      // console.log(element.amount);
       
       resultSet.push(element);
-      
+
       if ((element.amount <= 0) && (element.token_synced == false)) {
         console.log(`Point ${element.point_name} dengan ID token ${element.token_id} belum Sinkron dengan Blockchain`);
         const tokenBalance = await this.getClientAccountBalance(username, 'Org1', element.token_id.toString());
@@ -142,6 +141,8 @@ export class UserPointService {
         
         this.updateClientAccountBalance(username, tokenBalance, element.token_id);
         resultSet[index].amount = tokenBalance;
+        console.log(`Success Update User Balance to Off-chain`);
+        
       }
       
     }
