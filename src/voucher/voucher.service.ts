@@ -199,7 +199,7 @@ export class VoucherService {
   }
 
   async getUserVouchers(username: string) {
-    const queryResult = await this.connection.query(`SELECT * FROM VOUCHER_USER VU LEFT JOIN VOUCHER V ON VU.VOUCHER_ID = V.ID WHERE VU.REDEEMED <> TRUE AND V.EXPIRED <> TRUE AND VU.USERNAME = '${username}' ORDER BY V.EXPIRED_AT ASC;`);
+    const queryResult = await this.connection.query(`select vu.id as id, vu.voucher_id as voucher_id , vu.user_id as user_id, vu.username as username, vu.claimed_at as claimed_at, vu.redeemed as redeemed , vu.redeemed_at as redeemed_at, v."name" as name, v.description, v.terms_of_use, v.thumbnail_url, v.code, v."type" as type, v.provider, v.provider_id, v.point_price, v.expired, v.expired_at, v.created_at, v.provider_logo from voucher_user vu left join voucher v on vu.voucher_id = v.id where vu.redeemed <> true and v.expired <> true and vu.username = '${username}' order by v.expired_at asc;`);
     return queryResult;
   }
 

@@ -32,7 +32,7 @@ export class AuthService {
     
     selectMinter.forEach( async element => {
       const {minter, token_id, point_name, point_id} = element;
-      const amount = token_id == 1 ? 15000 : token_id == 3 ? 100 : 2000;
+      const amount = token_id == 1 ? 25000 : token_id == 3 ? 100 : 2000;
       let paired = false;
       let paired_at = new Date().toISOString();
       
@@ -140,7 +140,7 @@ export class AuthService {
     
     if (user) {
 
-      const {id, username, organization, fullname, email} = user;
+      const {id, username, organization, fullname, email, pin} = user;
 
       const jwtPayload = {
         username: email,
@@ -151,6 +151,7 @@ export class AuthService {
       return {
         username: email,
         fullname,
+        pin,
         access_token: this.jwtService.sign(jwtPayload)
       };
     }
@@ -168,9 +169,11 @@ export class AuthService {
     pin: string
   ): Promise<any> {
     const user = await this.usersService.findByUserPin(username, pin);
+    
     if (user) {
       return true;
     }
+    console.log(`User PIN ${user}`);
     return false;
   }
 }
