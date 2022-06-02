@@ -1,9 +1,13 @@
 import { BadRequestException, HttpException, HttpStatus } from "@nestjs/common";
 import { InjectConnection, InjectRepository } from "@nestjs/typeorm";
+import { response } from "express";
 import { UserPointService } from "src/conventional-point/user-point.service";
+import { SendCreditDto } from "src/ppob/dto/send-credit.dto";
+import { PPOBService } from "src/ppob/ppob.service";
 import { RedeemHistoryDto } from "src/token/dto/redeem-history-dto";
 import { TokenService } from "src/token/token.service";
 import { Connection, Repository } from "typeorm";
+import { CreatePpobVoucherUserDto } from "./dto/create-ppob-voucher.dto";
 import { CreateVoucherUserDto } from "./dto/create-voucher-user.dto";
 import { CreateVoucherDto } from "./dto/create-voucher.dto";
 import { PaymentPointDto } from "./dto/payment-point.dto";
@@ -25,6 +29,8 @@ export class VoucherService {
     private tokenService: TokenService,
 
     private userPointService: UserPointService,
+
+    private ppobService: PPOBService,
 
   ) { }
 
@@ -59,7 +65,7 @@ export class VoucherService {
 
   async createVoucherUser(payload: CreateVoucherUserDto): Promise<VoucherUser> {
 
-    const { voucher_id, user_id, username, payment } = payload;
+    const { voucher_id, user_id, username } = payload;
     let created: any = null;
 
     await this.claimVoucher(payload).then(async () => {
@@ -85,14 +91,70 @@ export class VoucherService {
       throw new HttpException(err.response.message, 500);
     });
 
-    return created;
+    return (response.statusCode = HttpStatus.CREATED, response.statusMessage = created);
+
+  }
+
+  async createPpobVoucherUser(payload: CreatePpobVoucherUserDto): Promise<VoucherUser> {
+
+    const { voucher_id, user_id, username, phone_number, payment } = payload;
+    const dateNow = new Date().toISOString();
+    let created: any = null;
+
+    // console.log(`Payload Claim PPOB Voucher: ${voucher_id} , ${user_id}, ${username}, ${phone_number}, ${payment}`);
+
+    const voucherExist = await this.findById(voucher_id);
+    if (voucherExist == undefined) {
+      throw new HttpException(
+        `Voucher Not Found, Cannot Claim Voucher`,
+        HttpStatus.BAD_REQUEST
+      );
+    }
+
+    const { point_price } = voucherExist;
+
+    console.log(`Detail Voucher price ${point_price}`);
+
+    // Claim Voucher point to Token
+    await this.claimVoucher(payload).then(async () => {
+
+      // Send Pulsa to User Phone Number
+      let sendCreditPpob: SendCreditDto;
+
+      sendCreditPpob = {
+        amount: point_price.toString(),
+        destNumber: phone_number,
+        productCode: voucher_id.toString()
+      }
+
+      await this.ppobService.sendCredit(sendCreditPpob).then(async () => {
+
+        // Save Voucher Claimed
+        created = await this.voucherUserRepository.save({
+          voucher_id,
+          user_id,
+          username,
+          claimed_at: dateNow,
+          redeemed: true,
+          redeemed_at: dateNow
+        });
+
+      }).catch((err) => {
+      throw new HttpException(`Can Not Send Pulsa to User: ${err.response.message}`, 500);
+      });
+
+    }).catch((err) => {
+      throw new HttpException(`Can Not Claim Token: ${err.response.message}`, 500);
+    });
+
+    return (response.statusCode = HttpStatus.CREATED, response.statusMessage = created);
 
   }
 
 
-  async claimVoucher(data: CreateVoucherUserDto) {
+  async claimVoucher(payload: CreateVoucherUserDto) {
 
-    const { voucher_id, username, payment } = data;
+    const { voucher_id, username, payment } = payload;
     const bumnPoinTokenId = "1";
     const organization = "Org1";
     const tx_type = "redeem";
@@ -110,7 +172,7 @@ export class VoucherService {
 
       const { point_price, provider_id } = queryResultVoucher[0];
 
-      for (let index = 0; index < data.payment.length; index++) {
+      for (let index = 0; index < payload.payment.length; index++) {
         const element = payment[index];
 
         // BUMN Poin Calculation
@@ -162,11 +224,11 @@ export class VoucherService {
 
       console.log("Username sender: " + username);
       console.log("Username recepient: " + provider_id);
-      
+
 
       // Submit Transfer BUMN Token to Merchant
       await this.tokenService.transferTokenFrom(username, organization, provider_id, organization, bumnPoinTokenId, totalBUMNPoin.toString()).then(async () => {
-        if(bumnPoinRedeemed) {
+        if (bumnPoinRedeemed) {
 
           const latestBumnPoin = userBUMNPoinBalance - totalBUMNPoin;
 

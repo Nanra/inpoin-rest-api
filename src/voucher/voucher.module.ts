@@ -1,6 +1,7 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { UserPointModule } from "src/conventional-point/user-point.module";
+import { PPOBModule } from "src/ppob/ppob.module";
 import { TokenModule } from "src/token/token.module";
 import { VoucherUser } from "./voucher-user.entity";
 import { VoucherController } from "./voucher.controller";
@@ -11,6 +12,7 @@ import { VoucherService } from "./voucher.service";
     imports: [
       TokenModule,
       UserPointModule,
+      PPOBModule,
       TypeOrmModule.forFeature([Voucher, VoucherUser])],
     providers: [VoucherService],
     exports: [VoucherService],

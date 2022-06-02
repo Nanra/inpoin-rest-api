@@ -1,6 +1,8 @@
 import { Body, Controller, Get, Post, Query, Req, UseGuards } from "@nestjs/common";
 import { JwtOtpGuard } from "src/auth/jwt-otp.guard";
+import { ClaimPpobVoucherDto } from "./dto/claim-ppob-voucher.dto";
 import { ClaimVoucherDto } from "./dto/claim-voucher.dto";
+import { CreatePpobVoucherUserDto } from "./dto/create-ppob-voucher.dto";
 import { CreateVoucherUserDto } from "./dto/create-voucher-user.dto";
 import { CreateVoucherDto } from "./dto/create-voucher.dto";
 import { VoucherService } from "./voucher.service";
@@ -29,6 +31,20 @@ export class VoucherController{
         payloadVoucherUser.voucher_id = payload.voucher_id;
         payloadVoucherUser.payment = payload.payment;
         return this.voucherService.createVoucherUser(payloadVoucherUser);
+    }
+
+    @UseGuards(JwtOtpGuard)
+    @Post('claim/ppob')
+    async claimVoucherPpob(
+        @Req() { user: { userId, username } },
+        @Body() payload: ClaimPpobVoucherDto) {
+        const payloadVoucherPpobUser = new CreatePpobVoucherUserDto;
+        payloadVoucherPpobUser.user_id = userId;
+        payloadVoucherPpobUser.username = username;
+        payloadVoucherPpobUser.voucher_id = payload.voucher_id;
+        payloadVoucherPpobUser.payment = payload.payment;
+        payloadVoucherPpobUser.phone_number = payload.phone_number;
+        return this.voucherService.createPpobVoucherUser(payloadVoucherPpobUser);
     }
 
     @UseGuards(JwtOtpGuard)
