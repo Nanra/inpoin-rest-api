@@ -2,6 +2,7 @@ import axios, { AxiosInstance } from 'axios';
 import { URLSearchParams } from 'url';
 import * as hmacSHA256 from 'crypto-js/hmac-sha256';
 import * as encHex from 'crypto-js/enc-hex';
+import * as https from 'https';
 import { SendCreditDto } from './dto/send-credit.dto';
 
 const headers: Readonly<Record<string, string | boolean>> = {
@@ -54,6 +55,8 @@ export class PPOBService {
       baseURL: 'https://prodapi-app.tmoney.co.id/api',
       headers,
       withCredentials: true,
+      timeout: 10000, //optional
+      httpsAgent: new https.Agent({ keepAlive: true }),
     });
     const initData = {
       idTmoney: '',
@@ -160,10 +163,14 @@ export class PPOBService {
 
 // const test = new PPOBService();
 
-// test.sendCredit({
-//   productCode: '',
-//   destNumber: '6281214881660',
-//   amount: '5000',
-// });
+// test
+//   .sendCredit({
+//     productCode: 'TMONEYTSEL',
+//     destNumber: '081214881660',
+//     amount: '5000',
+//   })
+//   .then(() => {
+//     console.log('\ntransaction done');
+//   });
 
 // test.cekStatusPayment('195220602090746956');
