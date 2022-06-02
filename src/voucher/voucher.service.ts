@@ -119,13 +119,11 @@ export class VoucherService {
     await this.claimVoucher(payload).then(async () => {
 
       // Send Pulsa to User Phone Number
-      let sendCreditPpob: SendCreditDto;
-
-      sendCreditPpob = {
+      const sendCreditPpob: SendCreditDto = {
         amount: point_price.toString(),
         destNumber: phone_number,
         productCode: 'TMONEYTSEL'
-      }
+      };
 
       await this.ppobService.sendCredit(sendCreditPpob).then(async () => {
 
