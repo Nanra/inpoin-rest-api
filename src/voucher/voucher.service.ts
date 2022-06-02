@@ -115,7 +115,7 @@ export class VoucherService {
 
     console.log(`Detail Voucher price ${point_price}`);
 
-    // Claim Voucher point to Token
+    // Claim Voucher point to Token OnChain
     await this.claimVoucher(payload).then(async () => {
 
       // Send Pulsa to User Phone Number
@@ -124,12 +124,12 @@ export class VoucherService {
       sendCreditPpob = {
         amount: point_price.toString(),
         destNumber: phone_number,
-        productCode: voucher_id.toString()
+        productCode: 'TMONEYTSEL'
       }
 
       await this.ppobService.sendCredit(sendCreditPpob).then(async () => {
 
-        // Save Voucher Claimed
+        // Save Voucher Claimed OffChain
         created = await this.voucherUserRepository.save({
           voucher_id,
           user_id,
