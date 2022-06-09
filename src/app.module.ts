@@ -17,6 +17,7 @@ import { UserPointModule } from './conventional-point/user-point.module';
 import { VoucherModule } from './voucher/voucher.module';
 import { Voucher } from './voucher/voucher.entity';
 import { VoucherUser } from './voucher/voucher-user.entity';
+import { TransactionPPOB } from './ppob/ppob.entity'
 import { Point } from './conventional-point/point.entity';
 
 @Module({
@@ -29,7 +30,7 @@ import { Point } from './conventional-point/point.entity';
       username: 'inpoin',
       password: 'inpoin123!@#',
       database: 'inpoin_staging',
-      entities: [User, Otp, ExchangeTransaction, Point, UserPoint, Voucher, VoucherUser],
+      entities: [User, Otp, ExchangeTransaction, Point, UserPoint, Voucher, VoucherUser, TransactionPPOB],
       synchronize: false,
     }),
     FabricGatewayModule,
@@ -44,4 +45,4 @@ import { Point } from './conventional-point/point.entity';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

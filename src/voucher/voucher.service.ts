@@ -127,7 +127,7 @@ export class VoucherService {
 
       await this.ppobService.sendCredit(sendCreditPpob).then(async (trans_id) => {
         // save history sendCredit PPOB
-        await this.ppobService.cekStatusPayment(trans_id).then(() => { })
+        await this.ppobService.cekStatusPayment(trans_id, user_id).then(() => { })
 
         // Save Voucher Claimed OffChain
         created = await this.voucherUserRepository.save({
