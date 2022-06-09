@@ -125,7 +125,9 @@ export class VoucherService {
         productCode: 'TMONEYTSEL'
       };
 
-      await this.ppobService.sendCredit(sendCreditPpob).then(async () => {
+      await this.ppobService.sendCredit(sendCreditPpob).then(async (trans_id) => {
+        // save history sendCredit PPOB
+        await this.ppobService.cekStatusPayment(trans_id).then(() => { })
 
         // Save Voucher Claimed OffChain
         created = await this.voucherUserRepository.save({
@@ -138,7 +140,7 @@ export class VoucherService {
         });
 
       }).catch((err) => {
-      throw new HttpException(`Can Not Send Pulsa to User: ${err.response.message}`, 500);
+        throw new HttpException(`Can Not Send Pulsa to User: ${err.response.message}`, 500);
       });
 
     }).catch((err) => {
