@@ -103,7 +103,7 @@ export class PPOBService {
 
   async sendCredit(payload: SendCreditDto) {
     const { idTmoney, idFusion, token } = await this.initHttp();
-    let id_trx = '';
+    let id_trx = 0;
 
     const paramsInquiry = new URLSearchParams();
     paramsInquiry.append('terminal', this.terminal);
@@ -121,7 +121,7 @@ export class PPOBService {
       .then(async ({ data }) => {
         console.log('\ninquiry\n', data);
 
-        id_trx = data.content.transactionID;
+        id_trx = Number(data.content.transactionID);
 
         // payment
         const paramsPayment = new URLSearchParams();
@@ -150,7 +150,7 @@ export class PPOBService {
     return id_trx;
   }
 
-  async cekStatusPayment(trxId: string) {
+  async cekStatusPayment(transID: number, user_id: number) {
     const { idTmoney, idFusion, token } = await this.initHttp();
 
     const params = new URLSearchParams();
@@ -158,7 +158,7 @@ export class PPOBService {
     params.append('idTmoney', idTmoney);
     params.append('idFusion', idFusion);
     params.append('token', token);
-    params.append('transactionID', trxId);
+    params.append('transactionID', String(transID));
     params.append('apiKey', this.apikey);
 
     let checkTrx;
@@ -170,10 +170,11 @@ export class PPOBService {
         //save db TransactionPPOB
         if (data.content) {
           checkTrx = await this.PPOBRepository.save({
-            id_trx: data.content.trans_id,
-            destNumber: data.content.detail.detail_2,
-            amount: data.content.detail.detail_3,
-            isSuccess: data.content.status !== 'SUKSES' ? false : true,
+            user_id,
+            trans_id: Number(data.content.trans_id),
+            dest_number: Number(data.content.detail.detail_2),
+            amount: Number(data.content.detail.detail_3),
+            is_success: data.content.status !== 'SUKSES' ? false : true,
             created_at: new Date().toISOString(),
           });
         }

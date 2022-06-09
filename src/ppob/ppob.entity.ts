@@ -6,16 +6,19 @@ export class TransactionPPOB {
   id: number;
 
   @Column()
-  id_trx: string;
+  user_id: number;
 
   @Column()
-  destNumber: string;
+  trans_id: number;
 
   @Column()
-  amount: string;
+  dest_number: number;
 
-  @Column({ nullable: true })
-  isSuccess: boolean;
+  @Column()
+  amount: number;
+
+  @Column()
+  is_success: boolean;
 
   @Column({ type: 'timestamp', nullable: true })
   created_at: Date | string;
