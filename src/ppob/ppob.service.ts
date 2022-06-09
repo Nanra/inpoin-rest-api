@@ -3,7 +3,10 @@ import { URLSearchParams } from 'url';
 import * as hmacSHA256 from 'crypto-js/hmac-sha256';
 import * as encHex from 'crypto-js/enc-hex';
 import * as https from 'https';
+import { InjectConnection, InjectRepository } from '@nestjs/typeorm';
+import { Connection, Repository } from 'typeorm';
 import { SendCreditDto } from './dto/send-credit.dto';
+import { TransactionPPOB } from './ppob.entity';
 
 const headers: Readonly<Record<string, string | boolean>> = {
   Accept: 'application/json',
@@ -22,7 +25,10 @@ export class PPOBService {
 
   private instance: AxiosInstance;
 
-  constructor() {
+  constructor(
+    @InjectRepository(TransactionPPOB)
+    private PPOBRepository: Repository<TransactionPPOB>,
+  ) {
     this.dateTimeNow = new Date()
       .toISOString()
       .split('T')
@@ -97,6 +103,7 @@ export class PPOBService {
 
   async sendCredit(payload: SendCreditDto) {
     const { idTmoney, idFusion, token } = await this.initHttp();
+    let id_trx = '';
 
     const paramsInquiry = new URLSearchParams();
     paramsInquiry.append('terminal', this.terminal);
@@ -113,6 +120,8 @@ export class PPOBService {
       .post('/ppob/topup-prepaid/inquiry', paramsInquiry)
       .then(async ({ data }) => {
         console.log('\ninquiry\n', data);
+
+        id_trx = data.content.transactionID;
 
         // payment
         const paramsPayment = new URLSearchParams();
@@ -131,12 +140,14 @@ export class PPOBService {
             console.log('\npayment\n', data);
           })
           .catch((e) => {
-            console.error(e.response.data.content);
+            console.error(e.response.data);
           });
       })
       .catch((e) => {
-        console.error(e.response.data.content);
+        console.error(e.response.data);
       });
+
+    return id_trx;
   }
 
   async cekStatusPayment(trxId: string) {
@@ -150,14 +161,28 @@ export class PPOBService {
     params.append('transactionID', trxId);
     params.append('apiKey', this.apikey);
 
+    let checkTrx;
     await this.instance
       .post('/ppob/check-status', params)
-      .then(({ data }) => {
-        console.log(data);
+      .then(async ({ data }) => {
+        console.log('\ncheck status PPOB transaction\n', data);
+
+        //save db TransactionPPOB
+        if (data.content) {
+          checkTrx = await this.PPOBRepository.save({
+            id_trx: data.content.trans_id,
+            destNumber: data.content.detail.detail_2,
+            amount: data.content.detail.detail_3,
+            isSuccess: data.content.status !== 'SUKSES' ? false : true,
+            created_at: new Date().toISOString(),
+          });
+        }
       })
       .catch((e) => {
-        console.error(e.response.data.content);
+        console.error(e.response.data);
       });
+
+    return checkTrx;
   }
 }
 
@@ -169,8 +194,8 @@ export class PPOBService {
 //     destNumber: '081214881660',
 //     amount: '5000',
 //   })
-//   .then(() => {
-//     console.log('\ntransaction done');
+//   .then((data) => {
+//     console.log('\ntransaction done', data);
 //   });
 
-// test.cekStatusPayment('195220602090746956');
+// test.cekStatusPayment('195220609135218558');
