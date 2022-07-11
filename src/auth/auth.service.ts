@@ -32,11 +32,11 @@ export class AuthService {
     
     selectMinter.forEach( async element => {
       const {minter, token_id, point_name, point_id} = element;
-      const amount = token_id == 1 ? 25000 : token_id == 3 ? 100 : 2000;
+      const amount = token_id == 700 ? 25000 : token_id == 702 ? 100 : 2000;
       let paired = false;
       let paired_at = new Date().toISOString();
       
-      if (point_id == 3) {
+      if (point_id == 1) {
         paired = true;
         paired_at = new Date().toISOString();
       }
@@ -77,7 +77,7 @@ export class AuthService {
         await this.issuingTokenAirDrop(email, phone_number);
       }).catch((error) => {
         console.log(`Error Register and Enrolling new User`);
-        throw new BadRequestException(`Can Not Register & Enrolling User to Ledger: ${error.responses[0].response.message}`)
+        throw new BadRequestException(`Can Not Register & Enrolling User to Ledger: ${error}`)
       });
 
       // Hash password

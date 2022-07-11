@@ -151,11 +151,10 @@ export class VoucherService {
 
   }
 
-
   async claimVoucher(payload: CreateVoucherUserDto) {
 
     const { voucher_id, username, payment } = payload;
-    const bumnPoinTokenId = "1";
+    const bumnPoinTokenId = "700";
     const organization = "Org1";
     const tx_type = "redeem";
 
